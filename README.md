@@ -52,8 +52,7 @@ Differentiable water simulation + differentiable water rendering + (differentiab
 
 *(Left)* center activation *(Right)* An activation that fools VGG
 
-<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_center.gif">
-<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_iter10.gif">
+<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_center.gif"><img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_iter10.gif">
 
 
 ### Differentiable Rigid Body Simulator [`python3 rigid_body.py [1/2] train`]
@@ -72,7 +71,7 @@ Gardient descent iteration 0 and gradient descent iteration 100:
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0000.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0100.gif">
 
-### GIFs of other 5 simulators to be added... See the video for all simulators.
+See the video for the remaining two simulators.
 
 ## Bibtex
 
