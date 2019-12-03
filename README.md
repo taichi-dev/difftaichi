@@ -1,11 +1,26 @@
 # 10 Differentiable Physical Simulators in the DiffTaichi paper
 ### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of reinforcement learning.
 
-(This Page is WIP)
+(This page is WIP)
 
 [[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions for reproducing every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
 
 Questions to go to Yuanming Hu (yuanming __at__ mit.edu).
+
+## How to Run
+Step 1: Install Taichi:
+```bash
+# CPU only. No GPU/CUDA needed. (Linux, OS X and Windows)
+python3 -m pip install taichi-nightly
+
+# With GPU (CUDA 10.0) support (Linux only)
+python3 -m pip install taichi-nightly-cuda-10-0
+
+# With GPU (CUDA 10.1) support (Linux only)
+python3 -m pip install taichi-nightly-cuda-10-1
+```
+Step 2: Run example scripts in the `examples` folder:
+
 
 ### Differentiable Elastic Object Simulator [`python3 diffmpm.py`]
 Gardient descent iteration 0 and gradient descent iteration 80: 
