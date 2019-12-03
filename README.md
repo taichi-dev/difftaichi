@@ -12,6 +12,11 @@ Gardient descent iteration 0 and gradient descent iteration 80:
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm00.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm80.gif">
 
+### Differentiable 3D Elastic Object Simulator [`python3 diffmpm3d.py`]
+Gradient descent iteration 40: 
+
+<img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm3d.gif">
+
 ### Differentiable Rigid Body Simulator [`python3 rigid_body.py [1/2] train`]
 2048 time steps. Gardient descent iteration 0 and gradient descent iteration 20: 
 
@@ -28,6 +33,4 @@ Gardient descent iteration 0 and gradient descent iteration 100:
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0000.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0100.gif">
 
-
-
-### Other 6 simulators to be added... See the video for all simulators
+### Other 5 simulators to be added... See the video for all simulators.
