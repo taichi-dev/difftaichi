@@ -33,4 +33,4 @@ Gardient descent iteration 0 and gradient descent iteration 100:
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0000.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0100.gif">
 
-### Other 5 simulators to be added... See the video for all simulators.
+### GIFs of other 5 simulators to be added... See the video for all simulators.
