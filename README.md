@@ -20,7 +20,7 @@ python3 -m pip install taichi-nightly-cuda-10-0
 # With GPU (CUDA 10.1) support (Linux only)
 python3 -m pip install taichi-nightly-cuda-10-1
 ```
-Step 2: Run example scripts in the `examples` folder:
+Step 2: Run example scripts in the `examples` folder: (Please wait for all GIFs to load :-)
 
 
 ### Differentiable Elastic Object Simulator [`python3 diffmpm.py`]
