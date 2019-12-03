@@ -1,16 +1,15 @@
 # DiffTaichi: Differentiable Programming for Physical Simulation
 ### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of using reinforcement learning.
 
-(This page is WIP)
-
 The *DiffTaichi* differentiable programming framework is now officially part of [Taichi](https://github.com/yuanming-hu/taichi). This repo only contains examples.
 
 [[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions for reproducing every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
 
 Questions to go to Yuanming Hu (yuanming __at__ mit.edu).
 
-## How to Run
-Step 1: Install Taichi:
+## How to run
+Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
+(Most examples do **not** need a GPU to run.)
 ```bash
 # CPU only. No GPU/CUDA needed. (Linux, OS X and Windows)
 python3 -m pip install taichi-nightly
