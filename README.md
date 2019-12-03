@@ -39,8 +39,9 @@ Gradient descent iteration 450:
 <img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/liquid.gif">
 
 ### Differentiable Height Field Water Simulator [`python3 wave.py`]
-Gradient descent iteration 180: 
-<img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/wave.gif">
+Gradient descent iteration 180:
+
+<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/wave.gif">
 
 ### Differentiable (Adversarial) Water Renderer [`python3 adversarial.py`]
 Differentiable water simulation + differentiable water rendering + (differentiable) CNN
