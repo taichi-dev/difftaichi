@@ -3,6 +3,8 @@
 
 (This page is WIP)
 
+The *DiffTaichi* differentiable programming framework is now officially part of [Taichi](https://github.com/yuanming-hu/taichi). This repo only contains examples.
+
 [[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions for reproducing every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
 
 Questions to go to Yuanming Hu (yuanming __at__ mit.edu).
@@ -49,3 +51,14 @@ Gardient descent iteration 0 and gradient descent iteration 100:
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0000.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/billiard0100.gif">
 
 ### GIFs of other 5 simulators to be added... See the video for all simulators.
+
+## Bibtex
+
+```
+@article{hu2019difftaichi,
+  title={DiffTaichi: Differentiable Programming for Physical Simulation},
+  author={Hu, Yuanming and Anderson, Luke and Li, Tzu-Mao and Sun, Qi and Carr, Nathan and Ragan-Kelley, Jonathan and Durand, Fr{\'e}do},
+  journal={arXiv preprint arXiv:1910.00935},
+  year={2019}
+}
+```
