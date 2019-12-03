@@ -34,6 +34,28 @@ Gradient descent iteration 40:
 
 <img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm3d.gif">
 
+### Differentiable 3D Fliud Simulator [`python3 liquid.py`]
+Gradient descent iteration 450: 
+
+<img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/liquid.gif">
+
+### Differentiable Height Field Water Simulator [`python3 wave.py`]
+Gradient descent iteration 180: 
+<img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/wave.gif">
+
+### Differentiable (Adversarial) Water Renderer [`python3 adversarial.py`]
+Differentiable water simulation + differentiable water rendering + (differentiable) CNN
+
+**Optimization goal:** find an initial water height field, so that after simulation and shading, VGG16 thinks the squirrel image is a goldfish.
+
+<img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/three-stage.jpg">
+
+*(Left)* center activation *(Right)* An activation that fools VGG
+
+<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_center.gif">
+<img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/water_wave_iter10.gif">
+
+
 ### Differentiable Rigid Body Simulator [`python3 rigid_body.py [1/2] train`]
 2048 time steps. Gardient descent iteration 0 and gradient descent iteration 20: 
 
