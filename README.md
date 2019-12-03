@@ -1,5 +1,5 @@
 # 10 Differentiable Physical Simulators in the DiffTaichi paper
-### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of reinforcement learning.
+### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of using reinforcement learning.
 
 (This page is WIP)
 
