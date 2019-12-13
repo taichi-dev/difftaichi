@@ -3,9 +3,13 @@
 
 The *DiffTaichi* differentiable programming framework is now officially part of [Taichi](https://github.com/yuanming-hu/taichi). This repo only contains examples.
 
+DiffTaichi significantly boosts the performance and productivity of differentiable physical simulators. For example, the differentiable elastic object simulator (ChainQueen) in DiffTaichi is 188x faster than an implementation in TensorFlow. The DiffTaichi version also runs as fast as the CUDA implementation, with the code being 4.2x shorter.
+
+Most of the 10 differentiable simulators can be implemented **within 2-3 hours**, if you don't consider the coding speed of Yuanming Hu as an outlier.
+
 [[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions for reproducing every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
 
-Questions go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
+Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
 
 ## How to run
 Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
