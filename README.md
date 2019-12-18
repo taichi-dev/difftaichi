@@ -1,4 +1,7 @@
 # DiffTaichi: Differentiable Programming for Physical Simulation
+
+*Yuanming Hu, Luke Anderson, Tzu-Mao Li, Qi Sun, Nathan Carr, Jonathan Ragan-Kelley, Frédo Durand*
+
 ### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of using reinforcement learning.
 
 The *DiffTaichi* differentiable programming framework is now officially part of [Taichi](https://github.com/yuanming-hu/taichi). This repo only contains examples.
