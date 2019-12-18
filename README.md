@@ -50,7 +50,7 @@ Gradient descent iteration 180:
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/wave.gif">
 
-### Differentiable (Adversarial) Water Renderer [`python3 adversarial.py`]
+### Differentiable (Adversarial) Water Renderer [`python3 water_renderer.py`]
 Differentiable water simulation + differentiable water rendering + (differentiable) CNN
 
 **Optimization goal:** find an initial water height field, so that after simulation and shading, VGG16 thinks the squirrel image is a goldfish. Input image: VGG16=fox squirrel (42.21%)
