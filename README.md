@@ -2,7 +2,7 @@
 
 *Yuanming Hu, Luke Anderson, Tzu-Mao Li, Qi Sun, Nathan Carr, Jonathan Ragan-Kelley, Frédo Durand*
 
-[[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions for reproducing every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
+[[Paper]](https://arxiv.org/abs/1910.00935) [[Video] (with instructions to reproduce every demo)](https://www.youtube.com/watch?v=Z1xvAZve9aE)
 
 ### Differentiable programming in Taichi allows you to optimize neural network controllers efficiently with brute-force gradient descent, instead of using reinforcement learning.
 
