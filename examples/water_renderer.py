@@ -2,12 +2,9 @@ import taichi as ti
 import math
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 import cv2
 
 real = ti.f32
-ti.set_default_fp(real)
-# ti.runtime.print_preprocessed = True
 
 n_grid = 256
 dx = 1 / n_grid
@@ -34,7 +31,7 @@ refracted_image = scalar()
 
 mode = 'refract'
 
-# ti.cfg.arch = ti.cuda
+ti.cfg.arch = ti.cuda
 
 
 @ti.layout
@@ -73,15 +70,13 @@ def gradient(t, i, j):
 
 @ti.kernel
 def initialize():
-  for i in range(n_grid):
-    for j in range(n_grid):
-      p[0, i, j] = initial[i, j]
+  for i, j in initial:
+    p[0, i, j] = initial[i, j]
 
 
 @ti.kernel
 def fdtd(t: ti.i32):
-  for i in range(n_grid):  # Parallelized over GPU threads
-    for j in range(n_grid):
+  for i, j in height_gradient:
       laplacian_p = laplacian(t - 2, i, j)
       laplacian_q = laplacian(t - 1, i, j)
       p[t, i, j] = 2 * p[t - 1, i, j] + (
@@ -90,50 +85,40 @@ def fdtd(t: ti.i32):
 
 
 @ti.kernel
-def render_reflect(t: ti.i32):
-  for i in range(n_grid):  # Parallelized over GPU threads
-    for j in range(n_grid):
+def render_reflect():
+  for i, j in height_gradient:
       grad = height_gradient[i, j]
       normal = ti.Vector.normalized(ti.Vector([grad[0], 1.0, grad[1]]))
       rendered[i, j] = normal[1]
 
 
-@ti.func
-def pattern(i, j):
-  return ti.cast(
-      ti.floor(i / (n_grid / 8)) + ti.floor(j / (n_grid / 8)), ti.i32) % 2
-
-
 @ti.kernel
 def render_refract():
-  for i in range(n_grid):  # Parallelized over GPU threads
-    for j in range(n_grid):
-      grad = height_gradient[i, j]
+  for i, j in height_gradient:
+    grad = height_gradient[i, j]
 
-      scale = 2.0
-      sample_x = i - grad[0] * scale
-      sample_y = j - grad[1] * scale
-      sample_x = ti.min(n_grid - 1, ti.max(0, sample_x))
-      sample_y = ti.min(n_grid - 1, ti.max(0, sample_y))
-      sample_xi = ti.cast(ti.floor(sample_x), ti.i32)
-      sample_yi = ti.cast(ti.floor(sample_y), ti.i32)
+    scale = 2.0
+    sample_x = i - grad[0] * scale
+    sample_y = j - grad[1] * scale
+    sample_x = ti.min(n_grid - 1, ti.max(0, sample_x))
+    sample_y = ti.min(n_grid - 1, ti.max(0, sample_y))
+    sample_xi = ti.cast(ti.floor(sample_x), ti.i32)
+    sample_yi = ti.cast(ti.floor(sample_y), ti.i32)
 
-      frac_x = sample_x - sample_xi
-      frac_y = sample_y - sample_yi
+    frac_x = sample_x - sample_xi
+    frac_y = sample_y - sample_yi
 
-      for k in ti.static(range(3)):
-        refracted_image[i, j, k] = (1.0 - frac_x) * (
-            (1 - frac_y) * bottom_image[sample_xi, sample_yi, k] +
-            frac_y * bottom_image[sample_xi, sample_yi + 1, k]) + frac_x * (
-                (1 - frac_y) * bottom_image[sample_xi + 1, sample_yi, k] +
-                frac_y * bottom_image[sample_xi + 1, sample_yi + 1, k])
+    for k in ti.static(range(3)):
+      refracted_image[i, j, k] = (1.0 - frac_x) * (
+          (1 - frac_y) * bottom_image[sample_xi, sample_yi, k] +
+          frac_y * bottom_image[sample_xi, sample_yi + 1, k]) + frac_x * (
+              (1 - frac_y) * bottom_image[sample_xi + 1, sample_yi, k] +
+              frac_y * bottom_image[sample_xi + 1, sample_yi + 1, k])
 
 
 @ti.kernel
 def compute_height_gradient(t: ti.i32):
-  for i in range(n_grid):  # Parallelized over GPU threads
-    for j in range(n_grid):
-      # TODO: fix boundary
+  for i, j in height_gradient:  # Parallelized over GPU threads
       height_gradient[i, j] = gradient(t, i, j)
 
 @ti.kernel
@@ -161,29 +146,13 @@ def forward(output=None):
     if (t + 1) % interval == 0 and output is not None:
       compute_height_gradient(t)
       render_refract()
-      if mode == 'refract':
-        img = np.zeros(shape=(n_grid, n_grid, 3), dtype=np.float32)
-        for i in range(n_grid):
-          for j in range(n_grid):
-            for k in range(3):
-              img[i, j, k] = refracted_image[i, j, k]
-        img = cv2.resize(img, fx=4, fy=4, dsize=None)
-        cv2.imshow('img', img)
-        cv2.waitKey(1)
-        if output:
-          img = np.clip(img, 0, 255)
-          cv2.imwrite(output + "/{:04d}.png".format(t), img * 255)
-      else:
-        img = np.zeros(shape=(n_grid, n_grid), dtype=np.float32)
-        for i in range(n_grid):
-          for j in range(n_grid):
-            img[i, j] = rendered[i, j] * 0.3 / 4
-        img = cv2.resize(img, fx=4, fy=4, dsize=None)
-        cv2.imshow('img', img)
-        cv2.waitKey(1)
-        if output:
-          img = np.clip(img, 0, 255)
-          cv2.imwrite(output + "/{:04d}.png".format(t), img * 255)
+      img = refracted_image.to_numpy()
+      img = cv2.resize(img, fx=4, fy=4, dsize=None)
+      cv2.imshow('img', img)
+      cv2.waitKey(1)
+      if output:
+        img = np.clip(img, 0, 255)
+        cv2.imwrite(output + "/{:04d}.png".format(t), img * 255)
   compute_height_gradient(steps - 1)
   render_refract()
 
@@ -220,7 +189,7 @@ def main():
           for k in range(3):
             refracted_image.grad[i + 16, j + 16, k] = grad[i, j, 2 - k] * 0.001
 
-    print('Iter', opt, ' Loss =', loss[None])
+    print('Iter', opt)
 
     apply_grad()
 
