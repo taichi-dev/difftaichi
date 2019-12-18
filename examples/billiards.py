@@ -68,7 +68,7 @@ def collide(t: ti.i32):
 
           if projected_v < 0:
             imp = -(1 + elasticity) * 0.5 * projected_v * dir
-      ti.atomic_add(impulse[t + 1, i], imp)
+      impulse[t + 1, i] += imp
     for j_ in range(n_balls - i - 1):
       j = j_ + i + 1
       imp = ti.Vector([0.0, 0.0])
@@ -82,7 +82,7 @@ def collide(t: ti.i32):
 
           if projected_v < 0:
             imp = -(1 + elasticity) * 0.5 * projected_v * dir
-      ti.atomic_add(impulse[t + 1, i], imp)
+      impulse[t + 1, i] += imp
 
 
 @ti.kernel
