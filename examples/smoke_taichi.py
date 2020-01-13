@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
-from imageio import imread, imwrite
 
 real = ti.f32
 ti.set_default_fp(real)

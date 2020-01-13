@@ -3,7 +3,6 @@ import time
 import numpy as np
 import cv2
 import os
-from imageio import imread, imwrite
 
 real = ti.f32
 ti.set_default_fp(real)
@@ -82,7 +81,7 @@ def inc_index(index):
 @ti.kernel
 def compute_div(t: ti.i32):
   for T in range(n_grid * n_grid):
-    y = T / n_grid
+    y = T // n_grid
     x = T - y * n_grid
     div[t, y, x] = -0.5 * dx * (
         v_updated[t, inc_index(y), x][0] - v_updated[t, dec_index(y), x][0] +
@@ -92,7 +91,7 @@ def compute_div(t: ti.i32):
 @ti.kernel
 def compute_p(t: ti.i32, k: ti.template()):
   for T in range(n_grid * n_grid):
-    y = T / n_grid
+    y = T // n_grid
     x = T - y * n_grid
     a = k + t * num_iterations_gauss_seidel
     p[a + 1, y, x] = (
@@ -103,7 +102,7 @@ def compute_p(t: ti.i32, k: ti.template()):
 @ti.kernel
 def update_v(t: ti.i32):
   for T in range(n_grid * n_grid):
-    y = T / n_grid
+    y = T // n_grid
     x = T - y * n_grid
     a = num_iterations_gauss_seidel * t - 1
     v[t, y, x][0] = v_updated[t, y, x][0] - 0.5 * (
@@ -118,7 +117,7 @@ def advect(field: ti.template(), field_out: ti.template(),
   """Move field smoke according to x and y velocities (vx and vy)
      using an implicit Euler integrator."""
   for T in range(n_grid * n_grid):
-    y = T / n_grid
+    y = T // n_grid
     x = T - y * n_grid
     center_x = y - v[t + t_offset, y, x][0]
     center_y = x - v[t + t_offset, y, x][1]
@@ -189,8 +188,9 @@ def forward(output=None):
 
 def main():
   print("Loading initial and target states...")
-  initial_smoke_img = imread("init_smoke.png")[:, :, 0] / 255.0
-  target_img = imread("peace.png")[::2, ::2, 3] / 255.0
+  initial_smoke_img = cv2.imread("init_smoke.png")[:, :, 0] / 255.0
+  target_img = cv2.resize(cv2.imread('taichi.png'),
+                          (n_grid, n_grid))[:, :, 0] / 255.0
 
   for i in range(n_grid):
     for j in range(n_grid):
