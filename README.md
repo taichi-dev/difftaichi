@@ -10,7 +10,7 @@ The *DiffTaichi* differentiable programming framework is now officially part of 
 
 DiffTaichi significantly boosts the performance and productivity of differentiable physical simulators. For example, the differentiable elastic object simulator (ChainQueen) in DiffTaichi is 188x faster than an implementation in TensorFlow. The DiffTaichi version also runs as fast as the CUDA implementation, with the code being 4.2x shorter.
 
-Most of the 10 differentiable simulators can be implemented **within 2-3 hours** (if you don't consider the coding speed of Yuanming Hu as an outlier...)
+Most of the 10 differentiable simulators can be implemented **within 2-3 hours**.
 
 Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
 
