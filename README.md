@@ -16,16 +16,18 @@ Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming
 
 ## How to run
 Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
+**Note: please use Taichi v0.3.18 for now.**
+
 (Most examples do **not** need a GPU to run.)
 ```bash
 # CPU only. No GPU/CUDA needed. (Linux, OS X and Windows)
-python3 -m pip install taichi-nightly
+python3 -m pip install taichi-nightly==0.3.18
 
 # With GPU (CUDA 10.0) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-0
+python3 -m pip install taichi-nightly-cuda-10-0==0.3.18
 
 # With GPU (CUDA 10.1) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-1
+python3 -m pip install taichi-nightly-cuda-10-1==0.3.18
 ```
 Step 2: Run example scripts in the `examples` folder: (Please wait for all GIFs to load :-)
 
