@@ -1,2 +1,2 @@
-taichi-nightly==0.3.18
+taichi-nightly==0.4.1
 
