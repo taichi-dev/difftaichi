@@ -14,20 +14,21 @@ Most of the 10 differentiable simulators can be implemented **within 2-3 hours**
 
 Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
 
+### Note: please make sure you are using Taichi >= v0.4.1
+
 ## How to run
 Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
-**Note: please use Taichi v0.3.18 for now.**
 
 (Most examples do **not** need a GPU to run.)
 ```bash
 # CPU only. No GPU/CUDA needed. (Linux, OS X and Windows)
-python3 -m pip install taichi-nightly==0.3.18
+python3 -m pip install taichi-nightly==0.4.1
 
 # With GPU (CUDA 10.0) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-0==0.3.18
+python3 -m pip install taichi-nightly-cuda-10-0==0.4.1
 
 # With GPU (CUDA 10.1) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-1==0.3.18
+python3 -m pip install taichi-nightly-cuda-10-1==0.4.1
 ```
 Step 2: Run example scripts in the `examples` folder: (Please wait for all GIFs to load :-)
 
