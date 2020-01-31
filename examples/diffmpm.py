@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import taichi as tc
 
+ti.cfg.print_ir = True
+
 real = ti.f32
 ti.set_default_fp(real)
 
@@ -369,7 +371,7 @@ def main():
   losses = []
   for iter in range(100):
     with ti.Tape(loss):
-      forward()
+        forward()
     l = loss[None]
     losses.append(l)
     print('i=', iter, 'loss=', l)
