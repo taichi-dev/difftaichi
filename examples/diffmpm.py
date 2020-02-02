@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import taichi as tc
 
-ti.cfg.print_ir = True
-
 real = ti.f32
 ti.set_default_fp(real)
 
@@ -50,8 +48,7 @@ actuation = scalar()
 actuation_omega = 20
 act_strength = 4
 
-# ti.cfg.arch = ti.cuda
-
+ti.cfg.arch = ti.cuda
 
 @ti.layout
 def place():
