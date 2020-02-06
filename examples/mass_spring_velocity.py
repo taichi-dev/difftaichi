@@ -47,8 +47,8 @@ spring_omega = 10
 damping = 15
 
 n_springs = 0
-spring_anchor_a = ti.global_var(ti.i32)
-spring_anchor_b = ti.global_var(ti.i32)
+spring_anchor_a = ti.var(ti.i32)
+spring_anchor_b = ti.var(ti.i32)
 spring_length = scalar()
 spring_stiffness = scalar()
 spring_actuation = scalar()

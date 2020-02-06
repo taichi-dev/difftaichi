@@ -62,8 +62,8 @@ spring_omega = 30
 default_actuation = 0.05
 
 n_springs = 0
-spring_anchor_a = ti.global_var(ti.i32)
-spring_anchor_b = ti.global_var(ti.i32)
+spring_anchor_a = ti.var(ti.i32)
+spring_anchor_b = ti.var(ti.i32)
 # spring_length = -1 means it is a joint
 spring_length = scalar()
 spring_offset_a = vec()

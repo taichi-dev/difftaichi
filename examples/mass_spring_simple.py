@@ -29,8 +29,8 @@ x = vec()
 v = vec()
 force = vec()
 
-spring_anchor_a = ti.global_var(ti.i32)
-spring_anchor_b = ti.global_var(ti.i32)
+spring_anchor_a = ti.var(ti.i32)
+spring_anchor_b = ti.var(ti.i32)
 spring_length = scalar()
 
 
