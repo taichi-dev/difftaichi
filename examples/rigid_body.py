@@ -5,12 +5,8 @@ import math
 import numpy as np
 import os
 
-from renderer_vector import VectorRenderer
-
-renderer = VectorRenderer()
-
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real)
 
 max_steps = 4096
 vis_interval = 256
@@ -26,8 +22,6 @@ vec = lambda: ti.Vector(2, dt=real)
 loss = scalar()
 
 use_toi = False
-
-# ti.cfg.arch = ti.cuda
 
 x = vec()
 v = vec()
@@ -306,12 +300,7 @@ def compute_loss(t: ti.i32):
   loss[None] = (x[t, head_id] - goal[None]).norm()
 
 
-import taichi as tc
-gui = tc.core.GUI('Rigid Body Simulation', tc.veci(1024, 1024))
-canvas = gui.get_canvas()
-
-from renderer_vector import rgb_to_hex
-
+gui = ti.GUI('Rigid Body Simulation', (1024, 1024), background_color=0xFFFFFF)
 
 def forward(output=None, visualize=True):
 
@@ -337,8 +326,7 @@ def forward(output=None, visualize=True):
       advance_no_toi(t)
 
     if (t + 1) % interval == 0 and visualize:
-      canvas.clear(0xFFFFFF)
-
+      
       for i in range(n_objects):
         points = []
         for k in range(4):
@@ -354,9 +342,7 @@ def forward(output=None, visualize=True):
           points.append((pos[0], pos[1]))
 
         for k in range(4):
-          canvas.path(
-              tc.vec(*points[k]),
-              tc.vec(*points[(k + 1) % 4])).color(0x0).radius(2).finish()
+          gui.line(points[k], points[(k + 1) % 4], color=0x0, radius=2)
 
       for i in range(n_springs):
 
@@ -375,26 +361,21 @@ def forward(output=None, visualize=True):
 
         if spring_actuation[i] != 0 and spring_length[i] != -1:
           a = actuation[t - 1, i] * 0.5
-          color = rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
+          color = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
 
         if spring_length[i] == -1:
-          canvas.path(tc.vec(*pt1),
-                      tc.vec(*pt2)).color(0x000000).radius(9).finish()
-          canvas.path(tc.vec(*pt1),
-                      tc.vec(*pt2)).color(color).radius(7).finish()
+          gui.line(pt1, pt2, color=0x000000, radius=9)
+          gui.line(pt1, pt2, color=color, radius=7)
         else:
-          canvas.path(tc.vec(*pt1),
-                      tc.vec(*pt2)).color(0x000000).radius(7).finish()
-          canvas.path(tc.vec(*pt1),
-                      tc.vec(*pt2)).color(color).radius(5).finish()
+          gui.line(pt1, pt2, color=0x000000, radius=7)
+          gui.line(pt1, pt2, color=color, radius=5)
 
-      canvas.path(
-          tc.vec(0.05, ground_height - 5e-3),
-          tc.vec(0.95, ground_height - 5e-3)).color(0x0).radius(5).finish()
+      gui.line((0.05, ground_height - 5e-3), (0.95, ground_height - 5e-3), color=0x0, radius=5)
 
-      gui.update()
+      file = None
       if output:
-        gui.screenshot('rigid_body/{}/{:04d}.png'.format(output, t))
+        file = f'rigid_body/{output}/{t:04d}.png'
+      gui.show(file=file)
 
   loss[None] = 0
   compute_loss(steps - 1)

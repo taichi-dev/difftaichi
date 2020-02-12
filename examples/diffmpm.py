@@ -318,16 +318,16 @@ def robot(scene):
   scene.add_rect(0.25, 0.0, 0.05, 0.1, 3)
   scene.set_n_actuators(4)
 
-gui = ti.GUI("Differentiable MPM", (1024, 1024), background_color=0xFFFFFF)
+gui = ti.GUI("Differentiable MPM", (640, 640), background_color=0xFFFFFF)
 
 def visualize(s, folder):
+  aid = actuator_id.to_numpy()
   for i in range(n_particles):
     color = 0x111111
-    aid = actuator_id[i]
-    if aid != -1:
-      act = actuation[s - 1, aid]
+    if aid[i] != -1:
+      act = actuation[s - 1, aid[i]]
       color = ti.rgb_to_hex((0.5 - act, 0.5 - abs(act), 0.5 + act))
-    gui.circle([x[s, i][0], x[s, i][1]], radius=2, color=color)
+    gui.circle([x[s, i][0], x[s, i][1]], radius=1.5, color=color)
   gui.line((0.05, 0.02), (0.95, 0.02), radius=3, color=0x0)
 
   os.makedirs(folder, exist_ok=True)
