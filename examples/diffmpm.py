@@ -3,10 +3,9 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import taichi as tc
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real, arch=ti.cuda)
 
 dim = 2
 n_particles = 8192
@@ -47,8 +46,6 @@ x_avg = vec()
 actuation = scalar()
 actuation_omega = 20
 act_strength = 4
-
-ti.cfg.arch = ti.cuda
 
 @ti.layout
 def place():
@@ -92,7 +89,7 @@ def clear_actuation_grad():
 
 @ti.kernel
 def p2g(f: ti.i32):
-  for p in range(0, n_particles):
+  for p in range(n_particles):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, ti.i32)
     w = [0.5 * ti.sqr(1.5 - fx), 0.75 - ti.sqr(fx - 1), 0.5 * ti.sqr(fx - 0.5)]
@@ -130,9 +127,8 @@ def p2g(f: ti.i32):
         offset = ti.Vector([i, j])
         dpos = (ti.cast(ti.Vector([i, j]), real) - fx) * dx
         weight = w[i](0) * w[j](1)
-        grid_v_in[base + offset].atomic_add(
-            weight * (mass * v[f, p] + affine @ dpos))
-        grid_m_in[base + offset].atomic_add(weight * mass)
+        grid_v_in[base + offset] += weight * (mass * v[f, p] + affine @ dpos)
+        grid_m_in[base + offset] += weight * mass
 
 
 bound = 3
@@ -179,7 +175,7 @@ def grid_op():
 
 @ti.kernel
 def g2p(f: ti.i32):
-  for p in range(0, n_particles):
+  for p in range(n_particles):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, real)
     w = [
@@ -322,36 +318,25 @@ def robot(scene):
   scene.add_rect(0.25, 0.0, 0.05, 0.1, 3)
   scene.set_n_actuators(4)
 
-
-from renderer_vector import rgb_to_hex
-
-gui = tc.core.GUI("Differentiable MPM", tc.veci(1024, 1024))
-canvas = gui.get_canvas()
-
+gui = ti.GUI("Differentiable MPM", (1024, 1024), background_color=0xFFFFFF)
 
 def visualize(s, folder):
-  canvas.clear(0xFFFFFF)
-  vec = tc.vec
   for i in range(n_particles):
     color = 0x111111
     aid = actuator_id[i]
     if aid != -1:
       act = actuation[s - 1, aid]
-      color = rgb_to_hex((0.5 - act, 0.5 - abs(act), 0.5 + act))
-    canvas.circle(vec(x[s, i][0], x[s, i][1])).radius(2).color(color).finish()
-  canvas.path(tc.vec(0.05, 0.02), tc.vec(0.95,
-                                         0.02)).radius(3).color(0x0).finish()
-  gui.update()
+      color = ti.rgb_to_hex((0.5 - act, 0.5 - abs(act), 0.5 + act))
+    gui.circle([x[s, i][0], x[s, i][1]], radius=2, color=color)
+  gui.line((0.05, 0.02), (0.95, 0.02), radius=3, color=0x0)
 
   os.makedirs(folder, exist_ok=True)
-  gui.screenshot('{}/{:04d}.png'.format(folder, s))
+  gui.show(f'{folder}/{s:04d}.png')
 
 
 def main():
-  tc.set_gdb_trigger()
   # initialization
   scene = Scene()
-  # fish(scene)
   robot(scene)
   scene.finalize()
 
@@ -380,10 +365,10 @@ def main():
         weights[i, j] -= learning_rate * weights.grad[i, j]
       bias[i] -= learning_rate * bias.grad[i]
 
-    if iter % 10 == 9:
+    if iter % 10 == 0:
       # visualize
       forward(1500)
-      for s in range(63, 1500, 16):
+      for s in range(15, 1500, 16):
         visualize(s, 'diffmpm/iter{:03d}/'.format(iter))
 
   # ti.profiler_print()

@@ -1,6 +1,4 @@
 import taichi as ti
-import numpy as np
-import cv2
 import matplotlib.pyplot as plt
 
 real = ti.f32
