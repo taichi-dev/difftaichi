@@ -4,11 +4,11 @@ import cv2
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(arch=ti.cuda, default_fp=real)
 
 dim = 2
-n_particles = 6400
-N = 80
+N = 60
+n_particles = N * N
 n_grid = 120
 dx = 1 / n_grid
 inv_dx = 1 / dx
@@ -42,8 +42,6 @@ F = ti.Matrix(
 init_v = ti.Vector(dim, dt=real, shape=(), needs_grad=True)
 loss = ti.var(dt=real, shape=(), needs_grad=True)
 
-ti.cfg.arch = ti.cuda
-
 
 @ti.kernel
 def set_v():
@@ -53,7 +51,7 @@ def set_v():
 
 @ti.kernel
 def p2g(f: ti.i32):
-  for p in range(0, n_particles):
+  for p in range(n_particles):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, ti.i32)
     w = [0.5 * ti.sqr(1.5 - fx), 0.75 - ti.sqr(fx - 1), 0.5 * ti.sqr(fx - 0.5)]
@@ -80,9 +78,7 @@ bound = 3
 
 @ti.kernel
 def grid_op(f: ti.i32):
-  for p in range(n_grid * n_grid):
-    i = p // n_grid
-    j = p - n_grid * i
+  for i, j in ti.ndrange(n_grid, n_grid):
     inv_m = 1 / (grid_m_in[f, i, j] + 1e-10)
     v_out = inv_m * grid_v_in[f, i, j]
     v_out[1] -= dt * gravity
@@ -147,12 +143,15 @@ for i in range(n_particles):
 
 for i in range(N):
   for j in range(N):
-    x[0, i * N + j] = [dx * (i * 0.5 + 10), dx * (j * 0.5 + 25)]
+    x[0, i * N + j] = [dx * (i * 0.7 + 10), dx * (j * 0.7 + 25)]
 
 set_v()
 
 losses = []
 img_count = 0
+
+gui = ti.GUI("Simple Differentiable MPM Solver", (640, 640), 0xAAAAAA)
+
 for i in range(30):
   grid_v_in.fill(0)
   grid_m_in.fill(0)
@@ -171,34 +170,17 @@ for i in range(30):
   grad = init_v.grad[None]
   print('loss=', l, '   grad=', (grad[0], grad[1]))
   learning_rate = 10
-  init_v(0)[None] -= learning_rate * grad[0]
-  init_v(1)[None] -= learning_rate * grad[1]
+  init_v[None][0] -= learning_rate * grad[0]
+  init_v[None][1] -= learning_rate * grad[1]
 
   # visualize
-  for s in range(63, steps, 64):
+  x_np = x.to_numpy()
+  for s in range(15, steps, 16):
     scale = 4
-    img = np.zeros(shape=(scale * n_grid, scale * n_grid)) + 0.3
-    total = [0, 0]
-    for i in range(n_particles):
-      p_x = int(scale * x(0)[s, i] / dx)
-      p_y = int(scale * x(1)[s, i] / dx)
-      total[0] += p_x
-      total[1] += p_y
-      img[p_x, p_y] = 1
-    cv2.circle(
-        img, (total[1] // n_particles, total[0] // n_particles),
-        radius=5,
-        color=0,
-        thickness=5)
-    cv2.circle(
-        img, (int(target[1] * scale * n_grid), int(target[0] * scale * n_grid)),
-        radius=5,
-        color=1,
-        thickness=5)
-    img = img.swapaxes(0, 1)[::-1]
-    cv2.imshow('MPM', img)
+    gui.circles(x_np[s], color=0x112233, radius=1.5)
+    gui.circle(target, radius=5, color=0xFFFFFF)
     img_count += 1
-    cv2.waitKey(1)
+    gui.show()
 
 plt.title("Optimization of Initial Velocity")
 plt.ylabel("Loss")
