@@ -1,13 +1,10 @@
 import taichi as ti
 import os
-import math
 import numpy as np
 import cv2
-import matplotlib
-import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real, arch=ti.cuda)
 
 num_iterations = 240
 n_grid = 128
@@ -27,8 +24,6 @@ v_updated = vector()
 target = scalar()
 smoke = scalar()
 loss = scalar()
-
-ti.cfg.arch = ti.cuda
 
 
 @ti.layout

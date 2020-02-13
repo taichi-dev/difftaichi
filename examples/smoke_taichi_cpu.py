@@ -6,9 +6,9 @@ import os
 from imageio import imread, imwrite
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real)
 
-num_iterations = 50
+num_iterations = 150
 n_grid = 110
 dx = 1.0 / n_grid
 num_iterations_gauss_seidel = 6

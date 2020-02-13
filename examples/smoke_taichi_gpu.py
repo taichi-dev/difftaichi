@@ -5,7 +5,7 @@ import cv2
 import os
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real, arch=ti.cuda)
 
 num_iterations = 150
 n_grid = 110
@@ -25,10 +25,6 @@ v_updated = vector()
 target = scalar()
 smoke = scalar()
 loss = scalar()
-
-ti.cfg.arch = ti.cuda
-# ti.cfg.enable_profiler = True
-
 
 @ti.layout
 def place():
@@ -80,9 +76,7 @@ def inc_index(index):
 
 @ti.kernel
 def compute_div(t: ti.i32):
-  for T in range(n_grid * n_grid):
-    y = T // n_grid
-    x = T - y * n_grid
+  for y, x in ti.ndrange(n_grid, n_grid):
     div[t, y, x] = -0.5 * dx * (
         v_updated[t, inc_index(y), x][0] - v_updated[t, dec_index(y), x][0] +
         v_updated[t, y, inc_index(x)][1] - v_updated[t, y, dec_index(x)][1])
@@ -90,9 +84,7 @@ def compute_div(t: ti.i32):
 
 @ti.kernel
 def compute_p(t: ti.i32, k: ti.template()):
-  for T in range(n_grid * n_grid):
-    y = T // n_grid
-    x = T - y * n_grid
+  for y, x in ti.ndrange(n_grid, n_grid):
     a = k + t * num_iterations_gauss_seidel
     p[a + 1, y, x] = (
         div[t, y, x] + p[a, dec_index(y), x] + p[a, inc_index(y), x] +
@@ -101,9 +93,7 @@ def compute_p(t: ti.i32, k: ti.template()):
 
 @ti.kernel
 def update_v(t: ti.i32):
-  for T in range(n_grid * n_grid):
-    y = T // n_grid
-    x = T - y * n_grid
+  for y, x in ti.ndrange(n_grid, n_grid):
     a = num_iterations_gauss_seidel * t - 1
     v[t, y, x][0] = v_updated[t, y, x][0] - 0.5 * (
         p[a, inc_index(y), x] - p[a, dec_index(y), x]) / dx
@@ -116,9 +106,7 @@ def advect(field: ti.template(), field_out: ti.template(),
            t_offset: ti.template(), t: ti.i32):
   """Move field smoke according to x and y velocities (vx and vy)
      using an implicit Euler integrator."""
-  for T in range(n_grid * n_grid):
-    y = T // n_grid
-    x = T - y * n_grid
+  for y, x in ti.ndrange(n_grid, n_grid):
     center_x = y - v[t + t_offset, y, x][0]
     center_y = x - v[t + t_offset, y, x][1]
 
