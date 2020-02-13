@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 real = ti.f32
-ti.set_default_fp(real)
-ti.cfg.enable_profiler = False
-# ti.cfg.use_llvm = True
+ti.init(arch=ti.cuda, default_fp=real, enable_profiler=True)
 
 dim = 2
 n_particles = 6400
@@ -38,9 +36,6 @@ C, F = mat(), mat()
 
 init_v = vec()
 loss = scalar()
-
-ti.cfg.arch = ti.cuda
-
 
 @ti.layout
 def place():
@@ -92,7 +87,7 @@ def clear_grid():
 
 @ti.kernel
 def p2g(f: ti.i32):
-  for p in range(0, n_particles):
+  for p in range(n_particles):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, ti.i32)
     w = [0.5 * ti.sqr(1.5 - fx), 0.75 - ti.sqr(fx - 1), 0.5 * ti.sqr(fx - 0.5)]
@@ -109,9 +104,8 @@ def p2g(f: ti.i32):
         offset = ti.Vector([i, j])
         dpos = (ti.cast(ti.Vector([i, j]), real) - fx) * dx
         weight = w[i](0) * w[j](1)
-        grid_v_in[base + offset].atomic_add(
-            weight * (p_mass * v[f, p] + affine @ dpos))
-        grid_m_in[base + offset].atomic_add(weight * p_mass)
+        grid_v_in[base + offset] += weight * (p_mass * v[f, p] + affine @ dpos)
+        grid_m_in[base + offset] += weight * p_mass
 
 
 bound = 3
@@ -200,14 +194,15 @@ def benchmark():
     p2g(0)
     grid_op()
     g2p(0)
+  ti.sync()
+  ti.profiler_clear()
   t = time.time()
-  ti.runtime.sync()
   for i in range(iters):
     # clear_grid()
     p2g(0)
     grid_op()
     g2p(0)
-  ti.runtime.sync()
+  ti.sync()
   print('forward ', (time.time() - t) / iters * 1000 * 3, 'ms')
   ti.profiler_print()
 
@@ -215,14 +210,15 @@ def benchmark():
     p2g.grad(0)
     grid_op.grad()
     g2p.grad(0)
+  ti.sync()
+  ti.profiler_clear()
   t = time.time()
-  ti.runtime.sync()
   for i in range(iters):
     # clear_grid()
     g2p.grad(0)
     grid_op.grad()
     p2g.grad(0)
-  ti.runtime.sync()
+  ti.sync()
   print('backward ', (time.time() - t) / iters * 1000 * 3, 'ms')
   ti.profiler_print()
 
