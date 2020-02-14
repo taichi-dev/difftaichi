@@ -22,13 +22,13 @@ Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
 (Most examples do **not** need a GPU to run.)
 ```bash
 # CPU only. No GPU/CUDA needed. (Linux, OS X and Windows)
-python3 -m pip install taichi-nightly==0.4.1
+python3 -m pip install taichi-nightly
 
 # With GPU (CUDA 10.0) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-0==0.4.1
+python3 -m pip install taichi-nightly-cuda-10-0
 
 # With GPU (CUDA 10.1) support (Linux only)
-python3 -m pip install taichi-nightly-cuda-10-1==0.4.1
+python3 -m pip install taichi-nightly-cuda-10-1
 ```
 Step 2: Run example scripts in the `examples` folder: (Please wait for all GIFs to load :-)
 
