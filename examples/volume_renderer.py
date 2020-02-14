@@ -7,9 +7,7 @@ from imageio import imwrite
 os.makedirs('output_volume_renderer', exist_ok=True)
 
 real = ti.f32
-ti.set_default_fp(real)
-
-ti.cfg.arch = ti.cuda
+ti.init(default_fp=real, arch=ti.cuda)
 
 num_iterations = 100
 res = 512

@@ -8,12 +8,10 @@ import matplotlib.pyplot as plt
 import taichi as ti
 import math
 import numpy as np
-import cv2
 import os
 
 real = ti.f32
-ti.set_default_fp(real)
-# ti.cfg.print_ir = True
+ti.init(default_fp=real)
 
 max_steps = 4096
 vis_interval = 256
@@ -199,9 +197,6 @@ def compute_loss(t: ti.i32):
 gui = tc.core.GUI("Mass Spring Robot", tc.veci(1024, 1024))
 canvas = gui.get_canvas()
 
-from renderer_vector import rgb_to_hex
-
-
 def forward(output=None, visualize=True):
   if random.random() > 0.5:
     goal[None] = [0.9, 0.2]
@@ -232,7 +227,7 @@ def forward(output=None, visualize=True):
                   tc.vec(1, ground_height)).color(0x0).radius(3).finish()
 
       def circle(x, y, color):
-        canvas.circle(tc.vec(x, y)).color(rgb_to_hex(color)).radius(7).finish()
+        canvas.circle(tc.vec(x, y)).color(ti.rgb_to_hex(color)).radius(7).finish()
 
       for i in range(n_springs):
 
@@ -246,7 +241,7 @@ def forward(output=None, visualize=True):
           c = 0x222222
         else:
           r = 4
-          c = rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
+          c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
         canvas.path(
             get_pt(x[t, spring_anchor_a[i]]),
             get_pt(x[t, spring_anchor_b[i]])).color(c).radius(r).finish()

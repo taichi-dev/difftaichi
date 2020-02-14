@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real)
 
 max_steps = 1024
 vis_interval = 256

@@ -10,7 +10,7 @@ import taichi as tc
 import sys
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real)
 
 max_steps = 4096
 vis_interval = 1

@@ -9,7 +9,7 @@ import time
 import taichi as tc
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real, arch=ti.cuda)
 
 dim = 3
 # this will be overwritten
@@ -54,12 +54,6 @@ x_avg = vec()
 actuation = scalar()
 actuation_omega = 40
 act_strength = 5
-
-# ti.cfg.arch = ti.x86_64
-# ti.cfg.use_llvm = True
-ti.cfg.arch = ti.cuda
-
-# ti.cfg.print_ir = True
 
 visualize_resolution = 256
 

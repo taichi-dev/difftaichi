@@ -5,6 +5,7 @@ import os
 import cv2
 
 real = ti.f32
+ti.init(default_fp=real, arch=ti.cuda)
 
 n_grid = 256
 dx = 1 / n_grid
@@ -30,9 +31,6 @@ bottom_image = scalar()
 refracted_image = scalar()
 
 mode = 'refract'
-
-ti.cfg.arch = ti.cuda
-
 
 @ti.layout
 def place():

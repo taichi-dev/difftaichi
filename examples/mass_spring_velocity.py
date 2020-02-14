@@ -12,8 +12,7 @@ import cv2
 import os
 
 real = ti.f32
-ti.set_default_fp(real)
-# ti.cfg.print_ir = True
+ti.init(default_fp=real)
 
 max_steps = 4096
 vis_interval = 256

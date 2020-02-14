@@ -6,8 +6,7 @@ import os
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
-# ti.runtime.print_preprocessed = True
+ti.init(default_fp=real, arch=ti.cuda)
 
 n_grid = 256
 dx = 1 / n_grid
@@ -27,8 +26,6 @@ p = scalar()
 target = scalar()
 initial = scalar()
 loss = scalar()
-
-ti.cfg.arch = ti.cuda
 
 
 @ti.layout

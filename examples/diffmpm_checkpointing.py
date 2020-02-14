@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real, arch=ti.cuda)
 
 dim = 2
 n_particles = 6400
@@ -39,8 +39,6 @@ F = ti.Matrix(
     dim, dim, dt=real, shape=(max_steps, n_particles), needs_grad=True)
 init_v = ti.Vector(dim, dt=real, shape=(), needs_grad=True)
 loss = ti.var(dt=real, shape=(), needs_grad=True)
-
-ti.cfg.arch = ti.cuda
 
 
 @ti.kernel
