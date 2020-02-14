@@ -1,5 +1,4 @@
 import taichi as ti
-from mpl_toolkits.mplot3d import Axes3D
 import os
 import math
 import numpy as np
@@ -342,8 +341,6 @@ class Scene:
             self.particle_type.append(ptype)
             self.n_particles += 1
             self.n_solid_particles += int(ptype == 1)
-            if self.n_particles % 1000 == 0:
-              print("num particles", self.n_particles)
     else:
       for i in range(w_count):
         for j in range(h_count):
@@ -357,8 +354,6 @@ class Scene:
             self.particle_type.append(ptype)
             self.n_particles += 1
             self.n_solid_particles += int(ptype == 1)
-            if self.n_particles % 1000 == 0:
-              print("num particles", self.n_particles)
 
   def set_offset(self, x, y, z):
     self.offset_x = x
@@ -375,10 +370,6 @@ class Scene:
   def set_n_actuators(self, n_act):
     global n_actuators
     n_actuators = n_act
-
-
-gui = tc.core.GUI("Differentiable MPM", tc.veci(1024, 1024))
-canvas = gui.get_canvas()
 
 
 @ti.kernel
@@ -438,10 +429,6 @@ def main():
     actuator_id[i] = scene.actuator_id[i]
     particle_type[i] = scene.particle_type[i]
 
-  fig = plt.figure()
-  plt.ion()
-  ax = fig.add_subplot(111, projection='3d')
-
   losses = []
   for iter in range(100):
     t = time.time()
@@ -456,85 +443,56 @@ def main():
 
     for i in range(n_actuators):
       for j in range(n_sin_waves):
-        # print(weights.grad[i, j])
         weights[i, j] -= learning_rate * weights.grad[i, j]
       bias[i] -= learning_rate * bias.grad[i]
 
-    if iter % 20 == 0 and iter > 0:
+    if iter % 20 == 0:
+      print('Writing particle data to disk...')
+      print('(Please be patient)...')
       # visualize
       forward()
+      x_ = x.to_numpy()
+      v_ = v.to_numpy()
+      particle_type_ = particle_type.to_numpy()
+      actuation_ = actuation.to_numpy()
+      actuator_id_ = actuator_id.to_numpy()
+      folder = 'mpm3d/iter{:04d}/'.format(iter)
+      os.makedirs(folder, exist_ok=True)
       for s in range(7, steps, 2):
-        '''
-        print(s)
-        img = np.zeros((res[1] * res[0] * 3,), dtype=np.float32)
-        splat(s)
-        copy_back_and_clear(img)
-        img = img.reshape(res[1], res[0], 3)
-        img = np.sqrt(img)
-        cv2.imshow('img', img)
-        cv2.waitKey(1)
-        '''
-        '''
-        xs, ys, zs = [], [], []
-        aas, bs, cs = [], [], []
-        for i in range(n_particles):
-          if particle_type[i] == 0:
-            xs.append(x[s, i][0])
-            ys.append(x[s, i][2])
-            zs.append(x[s, i][1])
-          else:
-            aas.append(x[s, i][0])
-            bs.append(x[s, i][2])
-            cs.append(x[s, i][1])
-
-        ax.scatter(aas, bs, cs, marker='o')
-        ax.scatter(xs, ys, zs, marker='o')
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.set_zlim(0, 1)
-        plt.draw()
-        plt.pause(0.001)
-        plt.cla()
-        '''
-
-        def to255(x):
-          return int(max(min(x * 255, 255), 0))
-
         xs, ys, zs = [], [], []
         us, vs, ws = [], [], []
         cs = []
-        folder = 'mpm3d/iter{:04d}/'.format(iter)
-        os.makedirs(folder, exist_ok=True)
         for i in range(n_particles):
-          xs.append(x[s, i][0])
-          ys.append(x[s, i][1])
-          zs.append(x[s, i][2])
-          us.append(v[s, i][0])
-          vs.append(v[s, i][1])
-          ws.append(v[s, i][2])
+          xs.append(x_[s, i][0])
+          ys.append(x_[s, i][1])
+          zs.append(x_[s, i][2])
+          us.append(v_[s, i][0])
+          vs.append(v_[s, i][1])
+          ws.append(v_[s, i][2])
 
-          if particle_type[i] == 0:
+          if particle_type_[i] == 0:
             # fluid
             r = 0.3
             g = 0.3
             b = 1.0
           else:
             # neohookean
-            if actuator_id[i] != -1:
+            if actuator_id_[i] != -1:
               # actuated
-              act = actuation[s, actuator_id[i]] * 0.5
+              act = actuation_[s, actuator_id_[i]] * 0.5
               r = 0.5 - act
               g = 0.5 - abs(act)
               b = 0.5 + act
             else:
               r, g, b = 0.4, 0.4, 0.4
 
-          color = to255(r) * 65536 + 256 * to255(g) + to255(b)
-          cs.append(color)
+          cs.append(ti.rgb_to_hex((r, g, b)))
         data = np.array(xs + ys + zs + us + vs + ws + cs, dtype=np.float32)
-        data.tofile(open('{}/{:04}.bin'.format(folder, s), 'wb'))
+        fn ='{}/{:04}.bin'.format(folder, s)
+        data.tofile(open(fn, 'wb'))
+        print('.', end='')
+      print()
 
-  # ti.profiler_print()
   plt.title("Optimization of Initial Velocity")
   plt.ylabel("Loss")
   plt.xlabel("Gradient Descent Iterations")

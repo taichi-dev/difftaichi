@@ -462,7 +462,7 @@ def main():
         weights[i, j] -= learning_rate * weights.grad[i, j]
       bias[i] -= learning_rate * bias.grad[i]
 
-    if iter % 50 == 0:
+    if iter % 50 == -1:
       # visualize
       print("Dumping particles...")
       for s in range(7, steps, 2):

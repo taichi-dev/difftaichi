@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import taichi as ti
 import math
 import numpy as np
-import cv2
 import os
 
 real = ti.f32
