@@ -7,11 +7,11 @@ import taichi as tc
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.set_default_fp(real)
+ti.init(default_fp=real)
 
 max_steps = 2048
 vis_interval = 64
-output_vis_interval = 2
+output_vis_interval = 8
 steps = 1024
 assert steps * 2 <= max_steps
 
@@ -21,8 +21,6 @@ scalar = lambda: ti.var(dt=real)
 vec = lambda: ti.Vector(2, dt=real)
 
 loss = scalar()
-
-# ti.cfg.arch = ti.cuda
 
 init_x = vec()
 init_v = vec()
@@ -52,38 +50,28 @@ dt = 0.003
 alpha = 0.00000
 learning_rate = 0.01
 
+@ti.func
+def collide_pair(t, i, j):
+  imp = ti.Vector([0.0, 0.0])
+  if i != j:
+    dist = x[t, i] - x[t, j]
+    dist_norm = dist.norm()
+    rela_v = v[t, i] - v[t, j]
+    if dist_norm < 2 * radius:
+      dir = ti.Vector.normalized(dist)
+      projected_v = dir.dot(rela_v)
+      
+      if projected_v < 0:
+        imp = -(1 + elasticity) * 0.5 * projected_v * dir
+  impulse[t + 1, i] += imp
 
 @ti.kernel
 def collide(t: ti.i32):
   for i in range(n_balls):
     for j in range(i):
-      imp = ti.Vector([0.0, 0.0])
-      if i != j:
-        dist = x[t, i] - x[t, j]
-        dist_norm = dist.norm()
-        if dist_norm < 2 * radius:
-          dir = ti.Vector.normalized(dist)
-          rela_v = v[t, i] - v[t, j]
-          projected_v = dir.dot(rela_v)
-
-          if projected_v < 0:
-            imp = -(1 + elasticity) * 0.5 * projected_v * dir
-      impulse[t + 1, i] += imp
-    for j_ in range(n_balls - i - 1):
-      j = j_ + i + 1
-      imp = ti.Vector([0.0, 0.0])
-      if i != j:
-        dist = x[t, i] - x[t, j]
-        dist_norm = dist.norm()
-        if dist_norm < 2 * radius:
-          dir = ti.Vector.normalized(dist)
-          rela_v = v[t, i] - v[t, j]
-          projected_v = dir.dot(rela_v)
-
-          if projected_v < 0:
-            imp = -(1 + elasticity) * 0.5 * projected_v * dir
-      impulse[t + 1, i] += imp
-
+      collide_pair(t, i, j)
+    for j in range(i + 1, n_balls):
+      collide_pair(t, i, j)
 
 @ti.kernel
 def advance(t: ti.i32):
