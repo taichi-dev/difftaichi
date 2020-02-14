@@ -11,7 +11,7 @@ ti.init(default_fp=real)
 
 max_steps = 2048
 vis_interval = 64
-output_vis_interval = 8
+output_vis_interval = 16
 steps = 1024
 assert steps * 2 <= max_steps
 
@@ -26,6 +26,7 @@ init_x = vec()
 init_v = vec()
 
 x = vec()
+x_inc = vec() # for TOI
 v = vec()
 impulse = vec()
 
@@ -40,7 +41,7 @@ elasticity = 0.8
 
 @ti.layout
 def place():
-  ti.root.dense(ti.l, max_steps).dense(ti.i, n_balls).place(x, v, impulse)
+  ti.root.dense(ti.l, max_steps).dense(ti.i, n_balls).place(x, v, x_inc, impulse)
   ti.root.place(init_x, init_v)
   ti.root.place(loss)
   ti.root.lazy_grad()
@@ -53,8 +54,9 @@ learning_rate = 0.01
 @ti.func
 def collide_pair(t, i, j):
   imp = ti.Vector([0.0, 0.0])
+  x_inc_contrib = ti.Vector([0.0, 0.0])
   if i != j:
-    dist = x[t, i] - x[t, j]
+    dist = (x[t, i] + dt * v[t, i]) - (x[t, j] + dt * v[t, j])
     dist_norm = dist.norm()
     rela_v = v[t, i] - v[t, j]
     if dist_norm < 2 * radius:
@@ -63,6 +65,9 @@ def collide_pair(t, i, j):
       
       if projected_v < 0:
         imp = -(1 + elasticity) * 0.5 * projected_v * dir
+        toi = (dist_norm - 2 * radius) / min(-1e-3, projected_v) # Time of impact
+        x_inc_contrib = min(toi - dt, 0) * imp
+  x_inc[t + 1, i] += x_inc_contrib
   impulse[t + 1, i] += imp
 
 @ti.kernel
@@ -77,7 +82,7 @@ def collide(t: ti.i32):
 def advance(t: ti.i32):
   for i in range(n_balls):
     v[t, i] = v[t - 1, i] + impulse[t, i]
-    x[t, i] = x[t - 1, i] + dt * v[t, i]
+    x[t, i] = x[t - 1, i] + dt * v[t, i] + x_inc[t, i]
 
 
 @ti.kernel
@@ -144,9 +149,9 @@ def forward(visualize=False, output=None):
 
 @ti.kernel
 def clear():
-  for t in range(0, max_steps):
-    for i in range(0, n_balls):
-      impulse[t, i] = ti.Vector([0.0, 0.0])
+  for t, i in ti.ndrange(max_steps, n_balls):
+    impulse[t, i] = ti.Vector([0.0, 0.0])
+    x_inc[t, i] = ti.Vector([0.0, 0.0])
 
 
 def optimize():
@@ -154,13 +159,13 @@ def optimize():
   init_v[None] = [0.3, 0.0]
 
   clear()
-  forward(visualize=True, output='initial')
+  # forward(visualize=True, output='initial')
 
   for iter in range(200):
     clear()
 
     with ti.Tape(loss):
-      if iter % 20 == 0:
+      if iter % 20 == 19:
         output = 'iter{:04d}'.format(iter)
       else:
         output = None

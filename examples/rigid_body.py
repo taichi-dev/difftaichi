@@ -223,7 +223,7 @@ def collide(t: ti.i32):
           timpulse = ti.min(friction * impulse,
                             ti.max(-friction * impulse, timpulse))
           if corner_x[1] > ground_height:
-            toi = -(corner_x[1] - ground_height) / ti.min(corner_v[1], 1e-3)
+            toi = -(corner_x[1] - ground_height) / ti.min(corner_v[1], -1e-3)
 
       apply_impulse(t, i, impulse * normal + timpulse * tao, new_corner_x, toi)
 

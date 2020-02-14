@@ -14,7 +14,7 @@ Most of the 10 differentiable simulators can be implemented **within 2-3 hours**
 
 Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
 
-### Note: please make sure you are using Taichi >= v0.4.1
+### Note: please make sure you are using Taichi >= v0.4.6
 
 ## How to run
 Step 1: Install [`Taichi`](https://github.com/yuanming-hu/taichi) with `pip`:
