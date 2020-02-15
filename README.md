@@ -34,7 +34,7 @@ Step 2: Run example scripts in the `examples` folder: (Please wait for all GIFs 
 
 
 ### Differentiable Elastic Object Simulator [`python3 diffmpm.py`]
-Gardient descent iteration 0 and gradient descent iteration 80: 
+Gradient descent iteration 0 and gradient descent iteration 80: 
 
 <img width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm00.gif"> <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm80.gif">
 
