@@ -1,6 +1,6 @@
 <div align="center">
+  <h3> python3 diffmpm.py </h3>
   <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm80.gif">
-  <h3> `python3 diffmpm.py` </h3>
 </div>        
 
 
