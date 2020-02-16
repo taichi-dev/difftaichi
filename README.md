@@ -1,3 +1,9 @@
+<div align="center">
+  <img  width="400px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm80.gif">
+  <h3> `python3 diffmpm.py` </h3>
+</div>        
+
+
 # DiffTaichi: Differentiable Programming for Physical Simulation (ICLR 2020)
 
 *Yuanming Hu, Luke Anderson, Tzu-Mao Li, Qi Sun, Nathan Carr, Jonathan Ragan-Kelley, Frédo Durand*
