@@ -1,6 +1,4 @@
 import sys
-
-import sys
 import taichi as ti
 import math
 import numpy as np
