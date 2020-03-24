@@ -75,6 +75,7 @@ def collide(t: ti.i32):
   for i in range(n_balls):
     for j in range(i):
       collide_pair(t, i, j)
+  for i in range(n_balls):
     for j in range(i + 1, n_balls):
       collide_pair(t, i, j)
 
