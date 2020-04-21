@@ -196,7 +196,7 @@ def compute_loss(t: ti.i32):
 gui = tc.core.GUI("Mass Spring Robot", tc.veci(1024, 1024))
 canvas = gui.get_canvas()
 
-from renderer_vector import rgb_to_hex
+from taichi import rgb_to_hex
 
 
 def forward(output=None, visualize=True):
