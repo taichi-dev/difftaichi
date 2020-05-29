@@ -115,10 +115,10 @@ def nn1(t: ti.i32):
       # use a smaller weight since there are too many of them
       actuation += weights1[i, j * 6 + n_sin_waves] * offset[0] * 0.05
       actuation += weights1[i, j * 6 + n_sin_waves + 1] * offset[1] * 0.05
-      actuation += weights1[i, j * 6 + n_sin_waves + 2] * v[t, i][0] * 0.05
-      actuation += weights1[i, j * 6 + n_sin_waves + 3] * v[t, i][1] * 0.05
-      actuation += weights1[i, j * 6 + n_sin_waves + 4] * rotation[t, i] * 0.05
-      actuation += weights1[i, j * 6 + n_sin_waves + 5] * omega[t, i] * 0.05
+      actuation += weights1[i, j * 6 + n_sin_waves + 2] * v[t, j][0] * 0.05
+      actuation += weights1[i, j * 6 + n_sin_waves + 3] * v[t, j][1] * 0.05
+      actuation += weights1[i, j * 6 + n_sin_waves + 4] * rotation[t, j] * 0.05
+      actuation += weights1[i, j * 6 + n_sin_waves + 5] * omega[t, j] * 0.05
 
     actuation += weights1[i, n_objects * 6 + n_sin_waves] * goal[None][0]
     actuation += weights1[i, n_objects * 6 + n_sin_waves + 1] * goal[None][1]

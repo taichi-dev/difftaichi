@@ -112,8 +112,8 @@ def nn1(t: ti.i32):
       # use a smaller weight since there are too many of them
       actuation += weights1[i, j * 4 + n_sin_waves] * offset[0] * 0.05
       actuation += weights1[i, j * 4 + n_sin_waves + 1] * offset[1] * 0.05
-      actuation += weights1[i, j * 4 + n_sin_waves + 2] * v[t, i][0] * 0.05
-      actuation += weights1[i, j * 4 + n_sin_waves + 3] * v[t, i][1] * 0.05
+      actuation += weights1[i, j * 4 + n_sin_waves + 2] * v[t, j][0] * 0.05
+      actuation += weights1[i, j * 4 + n_sin_waves + 3] * v[t, j][1] * 0.05
     actuation += weights1[i, n_objects * 4 + n_sin_waves] * target_v[t][0]
     actuation += weights1[i, n_objects * 4 + n_sin_waves + 1] * target_v[t][1]
     actuation += bias1[i]
@@ -324,7 +324,7 @@ def optimize(toi, visualize):
 
   losses = []
   # forward('initial{}'.format(robot_id), visualize=visualize)
-  for iter in range(1000):
+  for iter in range(200):
     clear()
 
     with ti.Tape(loss):
