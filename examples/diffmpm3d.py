@@ -189,7 +189,7 @@ def grid_op():
       v_out[1] = 0
       v_out[2] = 0
       normal = ti.Vector([0.0, 1.0, 0.0])
-      lsq = (normal) ** 2.sum()
+      lsq = (normal ** 2).sum()
       if lsq > 0.5:
         if ti.static(coeff < 0):
           v_out[0] = 0
@@ -446,7 +446,7 @@ def main():
         weights[i, j] -= learning_rate * weights.grad[i, j]
       bias[i] -= learning_rate * bias.grad[i]
 
-    if iter % 20 == 0:
+    if iter % 20 == 19:
       print('Writing particle data to disk...')
       print('(Please be patient)...')
       # visualize
