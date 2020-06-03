@@ -123,7 +123,7 @@ def compute_height_gradient(t: ti.i32):
 def compute_loss(t: ti.i32):
   for i in range(n_grid):
     for j in range(n_grid):
-      ti.atomic_add(loss, dx * dx * ti.sqr(target[i, j] - p[t, i, j]))
+      ti.atomic_add(loss, dx * dx * (target[i, j] - p[t, i, j])) ** 2
 
 
 @ti.kernel

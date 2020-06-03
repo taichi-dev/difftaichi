@@ -500,8 +500,8 @@ def copy(img: np.ndarray):
       v = 1.0 * j / res[1]
 
       darken = 1.0 - vignette_strength * ti.max((ti.sqrt(
-          ti.sqr(u - vignette_center[0]) + ti.sqr(v - vignette_center[1])) -
-                                                 vignette_radius), 0)
+          (u - vignette_center[0]) ** 2 + (v - vignette_center[1])) -
+                                                 vignette_radius), 0) ** 2
 
       coord = ((res[1] - 1 - j) * res[0] + i) * 3
       for c in ti.static(range(3)):

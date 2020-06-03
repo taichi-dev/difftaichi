@@ -204,9 +204,9 @@ def collide(t: ti.i32):
 
       rn = cross(rela_pos, normal)
       rt = cross(rela_pos, tao)
-      impulse_contribution = inverse_mass[i] + ti.sqr(rn) * \
+      impulse_contribution = inverse_mass[i] + (rn) ** 2 * \
                              inverse_inertia[i]
-      timpulse_contribution = inverse_mass[i] + ti.sqr(rt) * \
+      timpulse_contribution = inverse_mass[i] + (rt) ** 2 * \
                               inverse_inertia[i]
 
       rela_v_ground = normal.dot(corner_v)

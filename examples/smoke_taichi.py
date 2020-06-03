@@ -133,7 +133,7 @@ def compute_loss():
     for j in range(n_grid):
       ti.atomic_add(
           loss,
-          ti.sqr(target[i, j] - smoke[steps - 1, i, j]) * (1 / n_grid**2))
+          (target[i, j] - smoke[steps - 1, i, j]) ** 2 * (1 / n_grid**2))
 
 
 @ti.kernel

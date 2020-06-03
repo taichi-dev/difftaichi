@@ -88,7 +88,7 @@ def compute_loss(t: ti.i32):
   area = ti.abs(
       0.5 * (x01[0] * x02[1] - x01[1] * x02[0]))  # area from cross product
   target_area = 0.1
-  loss[None] = ti.sqr(area - target_area)
+  loss[None] = (area - target_area) ** 2
 
 
 def visualize(output, t):

@@ -90,12 +90,12 @@ def p2g(f: ti.i32):
   for p in range(n_particles):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, ti.i32)
-    w = [0.5 * ti.sqr(1.5 - fx), 0.75 - ti.sqr(fx - 1), 0.5 * ti.sqr(fx - 0.5)]
+    w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
     new_F = (ti.Matrix.diag(dim=2, val=1) + dt * C[f, p]) @ F[f, p]
     F[f + 1, p] = new_F
-    J = ti.determinant(new_F)
+    J = (new_F).determinant()
     r, s = ti.polar_decompose(new_F)
-    cauchy = 2 * mu * (new_F - r) @ ti.transposed(new_F) + \
+    cauchy = 2 * mu * (new_F - r) @ new_F.transpose() + \
              ti.Matrix.diag(2, la * (J - 1) * J)
     stress = -(dt * p_vol * 4 * inv_dx * inv_dx) * cauchy
     affine = stress + p_mass * C[f, p]
@@ -136,7 +136,7 @@ def g2p(f: ti.i32):
     base = ti.cast(x[f, p] * inv_dx - 0.5, ti.i32)
     fx = x[f, p] * inv_dx - ti.cast(base, real)
     w = [
-        0.5 * ti.sqr(1.5 - fx), 0.75 - ti.sqr(fx - 1.0), 0.5 * ti.sqr(fx - 0.5)
+        0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
     ]
     new_v = ti.Vector([0.0, 0.0])
     new_C = ti.Matrix([[0.0, 0.0], [0.0, 0.0]])
@@ -147,7 +147,7 @@ def g2p(f: ti.i32):
         g_v = grid_v_out[base(0) + i, base(1) + j]
         weight = w[i](0) * w[j](1)
         new_v += weight * g_v
-        new_C += 4 * weight * ti.outer_product(g_v, dpos) * inv_dx
+        new_C += 4 * weight * g_v.outer_product(dpos) * inv_dx
 
     v[f + 1, p] = new_v
     x[f + 1, p] = x[f, p] + dt * v[f + 1, p]

@@ -88,8 +88,8 @@ def advance(t: ti.i32):
 
 @ti.kernel
 def compute_loss(t: ti.i32):
-  loss[None] = ti.sqr(x[t, target_ball][0] -
-                      goal[0]) + ti.sqr(x[t, target_ball][1] - goal[1])
+  loss[None] = (x[t, target_ball][0] -
+                      goal[0]) ** 2 + (x[t, target_ball][1] - goal[1]) ** 2
 
 
 @ti.kernel
