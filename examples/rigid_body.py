@@ -154,11 +154,6 @@ def initialize_properties():
 
 
 @ti.func
-def cross(a, b):
-  return a[0] * b[1] - a[1] * b[0]
-
-
-@ti.func
 def to_world(t, i, rela_x):
   rot = rotation[t, i]
   rot_matrix = rotation_matrix(rot)
@@ -176,7 +171,7 @@ def to_world(t, i, rela_x):
 def apply_impulse(t, i, impulse, location, toi_input):
   # ti.print(toi)
   delta_v = impulse * inverse_mass[i]
-  delta_omega = cross(location - x[t, i], impulse) * inverse_inertia[i]
+  delta_omega = (location - x[t, i]).cross(impulse) * inverse_inertia[i]
 
   toi = ti.min(ti.max(0.0, toi_input), dt)
 
@@ -202,8 +197,8 @@ def collide(t: ti.i32):
       normal = ti.Vector([0.0, 1.0])
       tao = ti.Vector([1.0, 0.0])
 
-      rn = cross(rela_pos, normal)
-      rt = cross(rela_pos, tao)
+      rn = rela_pos.cross(normal)
+      rt = rela_pos.cross(tao)
       impulse_contribution = inverse_mass[i] + (rn) ** 2 * \
                              inverse_inertia[i]
       timpulse_contribution = inverse_mass[i] + (rt) ** 2 * \
@@ -260,10 +255,9 @@ def apply_spring_force(t: ti.i32):
       rela_vel = vel_a - vel_b
       rela_vel_norm = rela_vel.norm() + 1e-1
       impulse_dir = rela_vel / rela_vel_norm
-      impulse_contribution = inverse_mass[a] + ti.sqr(
-        cross(impulse_dir, rela_a)) * inverse_inertia[
-                               a] + inverse_mass[b] + ti.sqr(cross(impulse_dir,
-                                                                   rela_b)) * \
+      impulse_contribution = inverse_mass[a] + \
+        impulse_dir.cross(rela_a) ** 2 * inverse_inertia[
+                               a] + inverse_mass[b] + impulse_dir.cross(rela_b) ** 2 * \
                              inverse_inertia[
                                b]
       # project relative velocity

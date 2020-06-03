@@ -75,11 +75,6 @@ def initialize_properties():
 
 
 @ti.func
-def cross(a, b):
-  return a[0] * b[1] - a[1] * b[0]
-
-
-@ti.func
 def to_world(t, i, rela_x):
   rot = rotation[t, i]
   rot_matrix = rotation_matrix(rot)
@@ -97,7 +92,7 @@ def to_world(t, i, rela_x):
 def apply_impulse(t, i, impulse, location):
   ti.atomic_add(v_inc[t + 1, i], impulse * inverse_mass[i])
   ti.atomic_add(omega_inc[t + 1, i],
-                cross(location - x[t, i], impulse) * inverse_inertia[i])
+                (location - x[t, i]).cross(impulse) * inverse_inertia[i])
 
 
 @ti.kernel
@@ -116,8 +111,8 @@ def collide(t: ti.i32):
       normal = ti.Vector([0.0, 1.0])
       tao = ti.Vector([1.0, 0.0])
 
-      rn = cross(rela_pos, normal)
-      rt = cross(rela_pos, tao)
+      rn = rela_pos.cross(normal)
+      rt = rela_pos.cross(tao)
       impulse_contribution = inverse_mass[i] + (rn) ** 2 * \
                              inverse_inertia[i]
       timpulse_contribution = inverse_mass[i] + (rt) ** 2 * \

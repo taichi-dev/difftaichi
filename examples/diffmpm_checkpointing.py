@@ -134,7 +134,7 @@ def compute_x_avg():
 
 @ti.kernel
 def compute_loss():
-  dist = ti.sqr(x_avg - ti.Vector(target))
+  dist = (x_avg - ti.Vector(target)) ** 2
   loss[None] = 0.5 * (dist(0) + dist(1))
 
 
