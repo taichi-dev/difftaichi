@@ -39,12 +39,10 @@ radius = 0.03
 elasticity = 0.8
 
 
-@ti.layout
-def place():
-  ti.root.dense(ti.l, max_steps).dense(ti.i, n_balls).place(x, v, x_inc, impulse)
-  ti.root.place(init_x, init_v)
-  ti.root.place(loss)
-  ti.root.lazy_grad()
+ti.root.dense(ti.l, max_steps).dense(ti.i, n_balls).place(x, v, x_inc, impulse)
+ti.root.place(init_x, init_v)
+ti.root.place(loss)
+ti.root.lazy_grad()
 
 
 dt = 0.003
