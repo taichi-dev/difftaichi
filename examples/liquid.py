@@ -191,7 +191,7 @@ def grid_op():
       v_out[1] = 0
       v_out[2] = 0
       normal = ti.Vector([0.0, 1.0, 0.0])
-      lsq = (normal) ** 2.sum()
+      lsq = normal.dot(normal)
       if lsq > 0.5:
         if ti.static(coeff < 0):
           v_out[0] = 0
