@@ -88,7 +88,18 @@ See the video for the remaining two simulators.
 @article{hu2019difftaichi,
   title={DiffTaichi: Differentiable Programming for Physical Simulation},
   author={Hu, Yuanming and Anderson, Luke and Li, Tzu-Mao and Sun, Qi and Carr, Nathan and Ragan-Kelley, Jonathan and Durand, Fr{\'e}do},
-  journal={arXiv preprint arXiv:1910.00935},
-  year={2019}
+  journal={ICLR},
+  year={2020}
+}
+
+@article{hu2019taichi,
+  title={Taichi: a language for high-performance computation on spatially sparse data structures},
+  author={Hu, Yuanming and Li, Tzu-Mao and Anderson, Luke and Ragan-Kelley, Jonathan and Durand, Fr{\'e}do},
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={38},
+  number={6},
+  pages={201},
+  year={2019},
+  publisher={ACM}
 }
 ```
