@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.init(default_fp=real, arch=ti.cuda)
+ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
 
 dim = 2
 n_particles = 8192

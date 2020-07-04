@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 
 real = ti.f32
-ti.init(default_fp=real, arch=ti.cuda)
+ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
 
 num_iterations = 240
 n_grid = 128
@@ -26,14 +26,12 @@ smoke = scalar()
 loss = scalar()
 
 
-@ti.layout
-def place():
-  ti.root.dense(ti.l, steps * p_dims).dense(ti.ij, n_grid).place(p)
-  ti.root.dense(ti.l, steps).dense(ti.ij, n_grid).place(v, v_updated, smoke,
-                                                        div)
-  ti.root.dense(ti.ij, n_grid).place(target)
-  ti.root.place(loss)
-  ti.root.lazy_grad()
+ti.root.dense(ti.l, steps * p_dims).dense(ti.ij, n_grid).place(p)
+ti.root.dense(ti.l, steps).dense(ti.ij, n_grid).place(v, v_updated, smoke,
+                                                    div)
+ti.root.dense(ti.ij, n_grid).place(target)
+ti.root.place(loss)
+ti.root.lazy_grad()
 
 
 # Integer modulo operator for positive values of n
