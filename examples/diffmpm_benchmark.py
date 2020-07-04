@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 real = ti.f32
-ti.init(arch=ti.cuda, default_fp=real, enable_profiler=True)
+ti.init(arch=ti.cuda, default_fp=real, kernel_profiler=True, flatten_if=True)
 
 dim = 2
 n_particles = 6400
@@ -195,7 +195,7 @@ def benchmark():
         grid_op()
         g2p(0)
     ti.sync()
-    ti.profiler_clear()
+    ti.kernel_profiler_clear()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -204,14 +204,14 @@ def benchmark():
         g2p(0)
     ti.sync()
     print('forward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.profiler_print()
+    ti.kernel_profiler_print()
 
     for i in range(1):
         p2g.grad(0)
         grid_op.grad()
         g2p.grad(0)
     ti.sync()
-    ti.profiler_clear()
+    ti.kernel_profiler_clear()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -220,7 +220,7 @@ def benchmark():
         p2g.grad(0)
     ti.sync()
     print('backward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.profiler_print()
+    ti.kernel_profiler_print()
 
 
 def main():
@@ -282,9 +282,9 @@ def main():
             img_count += 1
             # cv2.imwrite('MPM{:04d}.png'.format(img_count), img * 255)
             cv2.waitKey(1)
-        ti.profiler_print()
+        ti.kernel_profiler_print()
 
-    ti.profiler_print()
+    ti.kernel_profiler_print()
     plt.title("Optimization of Initial Velocity")
     plt.ylabel("Loss")
     plt.xlabel("Gradient Descent Iterations")
