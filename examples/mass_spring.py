@@ -275,10 +275,7 @@ def forward(output=None, visualize=True):
 def clear_states():
     for t in range(0, max_steps):
         for i in range(0, n_objects):
-            x.grad[t, i] = ti.Vector([0.0, 0.0])
-            v.grad[t, i] = ti.Vector([0.0, 0.0])
             v_inc[t, i] = ti.Vector([0.0, 0.0])
-            v_inc.grad[t, i] = ti.Vector([0.0, 0.0])
 
 
 def clear():
@@ -322,7 +319,7 @@ def optimize(toi, visualize):
     # forward('initial{}'.format(robot_id), visualize=visualize)
     for iter in range(100):
         clear()
-
+        # with ti.Tape(loss) automatically clears all gradients
         with ti.Tape(loss):
             forward(visualize=visualize)
 
