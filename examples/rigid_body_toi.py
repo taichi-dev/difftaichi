@@ -6,7 +6,6 @@ import os
 import matplotlib.pyplot as plt
 import time
 from matplotlib.pyplot import cm
-import taichi as tc
 
 real = ti.f32
 ti.init(default_fp=real)
@@ -77,7 +76,7 @@ def compute_loss(t: ti.i32):
     loss[None] = x[t, 0][1]
 
 
-gui = tc.core.GUI("Rigid Body", tc.veci(1024, 1024))
+gui = ti.core.GUI("Rigid Body", ti.veci(1024, 1024))
 canvas = gui.get_canvas()
 
 
@@ -97,11 +96,11 @@ def forward(output=None, visualize=True):
 
         if (t + 1) % interval == 0 and visualize:
             canvas.clear(0xFFFFFF)
-            canvas.circle(tc.vec(x[t, 0][0],
+            canvas.circle(ti.vec(x[t, 0][0],
                                  x[t, 0][1])).radius(10).color(0x0).finish()
             offset = 0.003
-            canvas.path(tc.vec(0.05, ground_height - offset),
-                        tc.vec(0.95, ground_height -
+            canvas.path(ti.vec(0.05, ground_height - offset),
+                        ti.vec(0.95, ground_height -
                                offset)).radius(2).color(0xAAAAAA).finish()
 
             if output:
