@@ -7,7 +7,6 @@ import random
 import cv2
 import matplotlib.pyplot as plt
 import time
-import taichi as tc
 
 real = ti.f32
 ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
@@ -376,7 +375,7 @@ class Scene:
         n_actuators = n_act
 
 
-gui = tc.core.GUI("Differentiable MPM", tc.veci(1024, 1024))
+gui = ti.core.GUI("Differentiable MPM", ti.veci(1024, 1024))
 canvas = gui.get_canvas()
 
 
@@ -423,7 +422,7 @@ def robot(scene):
 
 
 def main():
-    tc.set_gdb_trigger()
+    ti.set_gdb_trigger()
     # initialization
     scene = Scene()
     # fish(scene)
