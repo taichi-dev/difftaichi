@@ -4,7 +4,6 @@ import sys
 import math
 import numpy as np
 import os
-import taichi as tc
 import matplotlib.pyplot as plt
 
 real = ti.f32
@@ -113,7 +112,7 @@ def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (x[t] - goal[t]).norm_sqr())
 
 
-gui = tc.core.GUI("Electric", tc.veci(1024, 1024))
+gui = ti.core.GUI("Electric", ti.veci(1024, 1024))
 
 
 def forward(visualize=False, output=None):
@@ -134,13 +133,13 @@ def forward(visualize=False, output=None):
 
             for i in range(n_gravitation):
                 r = (gravitation[t, i] + 1) * 30
-                canvas.circle(tc.vec(*gravitation_position[i])).radius(
+                canvas.circle(ti.vec(*gravitation_position[i])).radius(
                     r).color(0xccaa44).finish()
 
-            canvas.circle(tc.vec(x[t][0],
+            canvas.circle(ti.vec(x[t][0],
                                  x[t][1])).radius(30).color(0xF20530).finish()
 
-            canvas.circle(tc.vec(
+            canvas.circle(ti.vec(
                 goal[t][0], goal[t][1])).radius(10).color(0x3344cc).finish()
 
             gui.update()
