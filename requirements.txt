@@ -2,3 +2,4 @@ taichi>=0.6.16
 matplotlib
 numpy
 opencv-python
+scipy
