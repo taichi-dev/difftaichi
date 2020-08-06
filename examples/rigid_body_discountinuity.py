@@ -3,7 +3,6 @@ import math
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import taichi as tc
 
 real = ti.f32
 ti.init(default_fp=real)
@@ -159,7 +158,7 @@ def compute_loss(t: ti.i32):
     loss[None] = x[t, head_id][0]
 
 
-gui = tc.core.GUI("Rigid Body", tc.veci(1024, 1024))
+gui = ti.core.GUI("Rigid Body", ti.veci(1024, 1024))
 canvas = gui.get_canvas()
 
 
@@ -196,13 +195,13 @@ def forward(output=None, visualize=True):
 
                 for k in range(4):
                     canvas.path(
-                        tc.vec(*points[k]),
-                        tc.vec(*points[(k + 1) %
+                        ti.vec(*points[k]),
+                        ti.vec(*points[(k + 1) %
                                        4])).radius(2).color(0x0).finish()
 
             offset = 0.003
-            canvas.path(tc.vec(0.05, ground_height - offset),
-                        tc.vec(0.95, ground_height -
+            canvas.path(ti.vec(0.05, ground_height - offset),
+                        ti.vec(0.95, ground_height -
                                offset)).radius(2).color(0xAAAAAA).finish()
 
             if output:

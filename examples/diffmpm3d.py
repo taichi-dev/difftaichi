@@ -5,7 +5,6 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import time
-import taichi as tc
 
 real = ti.f32
 ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
@@ -410,7 +409,7 @@ def robot(scene):
 
 
 def main():
-    tc.set_gdb_trigger()
+    ti.set_gdb_trigger()
     # initialization
     scene = Scene()
     # fish(scene)

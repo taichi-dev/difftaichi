@@ -3,7 +3,6 @@ import sys
 import math
 import numpy as np
 import os
-import taichi as tc
 import matplotlib.pyplot as plt
 
 real = ti.f32
@@ -98,7 +97,7 @@ def initialize():
     v[0, 0] = init_v
 
 
-gui = tc.core.GUI("Billiards", tc.veci(1024, 1024))
+gui = ti.core.GUI("Billiards", ti.veci(1024, 1024))
 
 
 def forward(visualize=False, output=None):
@@ -127,7 +126,7 @@ def forward(visualize=False, output=None):
         if (t + 1) % interval == 0 and visualize:
             canvas.clear(0x3C733F)
 
-            canvas.circle(tc.vec(goal[0], goal[1])).radius(
+            canvas.circle(ti.vec(goal[0], goal[1])).radius(
                 pixel_radius // 2).color(0x00000).finish()
 
             for i in range(n_balls):
@@ -138,7 +137,7 @@ def forward(visualize=False, output=None):
                 else:
                     color = 0xF20530
 
-                canvas.circle(tc.vec(
+                canvas.circle(ti.vec(
                     x[t, i][0],
                     x[t, i][1])).radius(pixel_radius).color(color).finish()
 

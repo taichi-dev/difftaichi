@@ -2,8 +2,6 @@ from mass_spring_robot_config import robots
 import random
 import sys
 from scipy.ndimage.filters import gaussian_filter
-
-import taichi as tc
 import matplotlib.pyplot as plt
 import taichi as ti
 import math
@@ -200,7 +198,7 @@ def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (target_v[t][0] - v[t, head_id][0]))**2
 
 
-gui = tc.core.GUI("Mass Spring Robot", tc.veci(1024, 1024))
+gui = ti.core.GUI("Mass Spring Robot", ti.veci(1024, 1024))
 canvas = gui.get_canvas()
 
 from taichi import rgb_to_hex
@@ -240,18 +238,18 @@ def forward(output=None, visualize=True):
 
         if (t + 1) % interval == 0 and visualize:
             canvas.clear(0xFFFFFF)
-            canvas.path(tc.vec(0, ground_height),
-                        tc.vec(1,
+            canvas.path(ti.vec(0, ground_height),
+                        ti.vec(1,
                                ground_height)).color(0x0).radius(3).finish()
 
             def circle(x, y, color):
-                canvas.circle(tc.vec(x, y)).color(
+                canvas.circle(ti.vec(x, y)).color(
                     rgb_to_hex(color)).radius(7).finish()
 
             for i in range(n_springs):
 
                 def get_pt(x):
-                    return tc.vec(x[0], x[1])
+                    return ti.vec(x[0], x[1])
 
                 a = act[t - 1, i] * 0.5
                 r = 2
