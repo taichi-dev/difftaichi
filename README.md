@@ -42,7 +42,7 @@ Gradient descent iteration 40:
 
 <img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/diffmpm3d.gif">
 
-### Differentiable 3D Fliud Simulator [`python3 liquid.py`]
+### Differentiable 3D Fluid Simulator [`python3 liquid.py`]
 Gradient descent iteration 450: 
 
 <img width="800px" src="https://github.com/yuanming-hu/public_files/raw/master/learning/difftaichi/liquid.gif">
