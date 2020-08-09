@@ -112,7 +112,7 @@ def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (x[t] - goal[t]).norm_sqr())
 
 
-gui = ti.core.GUI("Electric", ti.veci(1024, 1024))
+gui = ti.GUI("Electric", (1024, 1024), background_color=0x3C733F)
 
 
 def forward(visualize=False, output=None):
@@ -121,7 +121,6 @@ def forward(visualize=False, output=None):
         interval = output_vis_interval
         os.makedirs('electric/{}/'.format(output), exist_ok=True)
 
-    canvas = gui.get_canvas()
     for t in range(1, steps):
         nn1(t)
         nn2(t)
@@ -129,22 +128,19 @@ def forward(visualize=False, output=None):
         compute_loss(t)
 
         if (t + 1) % interval == 0 and visualize:
-            canvas.clear(0x3C733F)
+            gui.clear()
 
             for i in range(n_gravitation):
                 r = (gravitation[t, i] + 1) * 30
-                canvas.circle(ti.vec(*gravitation_position[i])).radius(
-                    r).color(0xccaa44).finish()
+                gui.circle(gravitation_position[i], 0xccaa44, r)
 
-            canvas.circle(ti.vec(x[t][0],
-                                 x[t][1])).radius(30).color(0xF20530).finish()
+            gui.circle((x[t][0], x[t][1]), 0xF20530, 30)
+            gui.circle((goal[t][0], goal[t][1]), 0x3344cc, 10)
 
-            canvas.circle(ti.vec(
-                goal[t][0], goal[t][1])).radius(10).color(0x3344cc).finish()
-
-            gui.update()
             if output:
-                gui.screenshot('electric/{}/{:04d}.png'.format(output, t))
+                gui.show('electric/{}/{:04d}.png'.format(output, t))
+            else:
+                gui.show()
 
 
 def rand():

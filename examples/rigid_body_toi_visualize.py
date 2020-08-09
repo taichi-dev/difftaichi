@@ -70,8 +70,7 @@ def advance_no_toi(t: ti.i32):
         x[t, i] = x[t - 1, i] + dt * new_v
 
 
-gui = ti.core.GUI("Rigid Body", ti.veci(1024, 1024))
-canvas = gui.get_canvas()
+gui = ti.GUI("Rigid Body", (1024, 1024), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True, dy=0, i=0):
@@ -83,7 +82,7 @@ def forward(output=None, visualize=True, dy=0, i=0):
     if output:
         os.makedirs('rigid_body_toi/{}/'.format(output), exist_ok=True)
 
-    canvas.clear(0xFFFFFF)
+    gui.clear()
     for t in range(1, total_steps):
         if use_toi:
             advance_toi(t)
@@ -93,16 +92,15 @@ def forward(output=None, visualize=True, dy=0, i=0):
         if (t + 1) % interval == 0 and visualize:
             color = 0x010101 * min(
                 255, max(0, int((1 - t * dt / total_t) * 0.7 * 255)))
-            canvas.circle(ti.vec(x[t, 0][0],
-                                 x[t, 0][1])).radius(80).color(color).finish()
+            gui.circle((x[t, 0][0], x[t, 0][1]), color, 80)
             offset = 0.077
-            canvas.path(ti.vec(0.05, ground_height - offset),
-                        ti.vec(0.95, ground_height -
-                               offset)).radius(2).color(0x000000).finish()
+            gui.line((0.05, ground_height - offset),
+                     (0.95, ground_height - offset), 0x000000, 2)
 
     if output:
-        gui.screenshot('rigid_body_toi/{}/{:04d}.png'.format(output, i))
-    gui.update()
+        gui.show('rigid_body_toi/{}/{:04d}.png'.format(output, i))
+    else:
+        gui.show()
 
 
 def main():

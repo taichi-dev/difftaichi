@@ -158,8 +158,7 @@ def compute_loss(t: ti.i32):
     loss[None] = x[t, head_id][0]
 
 
-gui = ti.core.GUI("Rigid Body", ti.veci(1024, 1024))
-canvas = gui.get_canvas()
+gui = ti.GUI("Rigid Body", (1024, 1024), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True):
@@ -178,7 +177,7 @@ def forward(output=None, visualize=True):
         advance(t)
 
         if (t + 1) % interval == 0 and visualize:
-            canvas.clear(0xFFFFFF)
+            gui.clear()
             for i in range(n_objects):
                 points = []
                 for k in range(4):
@@ -194,20 +193,16 @@ def forward(output=None, visualize=True):
                     points.append((pos[0], pos[1]))
 
                 for k in range(4):
-                    canvas.path(
-                        ti.vec(*points[k]),
-                        ti.vec(*points[(k + 1) %
-                                       4])).radius(2).color(0x0).finish()
+                    gui.line(points[k], points[(k + 1) % 4], 0x0, 2)
 
             offset = 0.003
-            canvas.path(ti.vec(0.05, ground_height - offset),
-                        ti.vec(0.95, ground_height -
-                               offset)).radius(2).color(0xAAAAAA).finish()
+            gui.line((0.05, ground_height - offset),
+                     (0.95, ground_height - offset), 0xAAAAAA, 2)
 
             if output:
                 gui.screenshot('rigid_body/{}/{:04d}.png'.format(output, t))
-
-            gui.update()
+            else:
+                gui.show()
 
     loss[None] = 0
     compute_loss(steps - 1)
@@ -238,7 +233,7 @@ def main():
             clear_states()
 
             with ti.Tape(loss):
-                forward(visualize=False)
+                forward(visualize=True)
 
             print('Iter=', i, 'Loss=', loss[None])
             print(omega.grad[0, 0])
