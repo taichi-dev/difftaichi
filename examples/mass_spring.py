@@ -8,6 +8,9 @@ import math
 import numpy as np
 import os
 
+random.seed(0)
+np.random.seed(0)
+
 real = ti.f32
 ti.init(default_fp=real)
 
