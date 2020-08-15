@@ -20,10 +20,8 @@ output_vis_interval = 8
 steps = 2048 // 3
 assert steps * 2 <= max_steps
 
-vis_resolution = 1024
-
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 
@@ -201,7 +199,7 @@ def compute_loss(t: ti.i32):
     loss[None] = -x[t, head_id][0]
 
 
-gui = ti.GUI("Mass Spring Robot", (1024, 1024), background_color=0xFFFFFF)
+gui = ti.GUI("Mass Spring Robot", (512, 512), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True):
@@ -229,8 +227,7 @@ def forward(output=None, visualize=True):
             advance_no_toi(t)
 
         if (t + 1) % interval == 0 and visualize:
-            gui.clear()
-            gui.line((0, ground_height), (1, ground_height), 0x0, 3)
+            gui.line(begin=(0, ground_height), end=(1, ground_height), color=0x0, radius=3)
 
             def circle(x, y, color):
                 gui.circle((x, y), ti.rgb_to_hex(color), 7)
@@ -248,8 +245,8 @@ def forward(output=None, visualize=True):
                 else:
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
-                gui.line(get_pt(x[t, spring_anchor_a[i]]),
-                         get_pt(x[t, spring_anchor_b[i]]), c, r)
+                gui.line(begin=get_pt(x[t, spring_anchor_a[i]]),
+                         end=get_pt(x[t, spring_anchor_b[i]]), radius=r, color=c)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)

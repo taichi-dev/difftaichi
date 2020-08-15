@@ -17,10 +17,8 @@ output_vis_interval = 8
 steps = 2048 // 2
 assert steps * 2 <= max_steps
 
-vis_resolution = 1024
-
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 
@@ -198,7 +196,7 @@ def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (target_v[t][0] - v[t, head_id][0]))**2
 
 
-gui = ti.GUI("Mass Spring Robot", (1024, 1024), background_color=0xFFFFFF)
+gui = ti.GUI("Mass Spring Robot", (512, 512), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True):
@@ -235,7 +233,7 @@ def forward(output=None, visualize=True):
 
         if (t + 1) % interval == 0 and visualize:
             gui.clear()
-            gui.line((0, ground_height), (1, ground_height), 0x0, 3)
+            gui.line((0, ground_height), (1, ground_height), color=0x0, radius=3)
 
             def circle(x, y, color):
                 gui.circle((x, y), ti.rgb_to_hex(color), 7)
@@ -254,7 +252,7 @@ def forward(output=None, visualize=True):
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
                 gui.line(get_pt(x[t, spring_anchor_a[i]]),
-                         get_pt(x[t, spring_anchor_b[i]]), c, r)
+                         get_pt(x[t, spring_anchor_b[i]]), color=c, radius=r)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)
@@ -367,34 +365,18 @@ def optimize(toi, visualize):
 
 
 robot_id = 0
-if len(sys.argv) != 3:
-    print("Usage: python3 mass_spring.py [robot_id=0, 1, 2, ...] [task]")
+if len(sys.argv) != 2:
+    print("Usage: python3 mass_spring_interactive.py [robot_id=0, 1, 2, ...]")
+    exit(0)
 else:
     robot_id = int(sys.argv[1])
-    task = sys.argv[2]
-
 
 def main():
-
     setup_robot(*robots[robot_id]())
 
-    if task == 'plot':
-        ret = {}
-        for toi in [False, True]:
-            ret[toi] = []
-            for i in range(5):
-                losses = optimize(toi=toi, visualize=False)
-                # losses = gaussian_filter(losses, sigma=3)
-                plt.plot(losses, 'g' if toi else 'r')
-                ret[toi].append(losses)
-
-        import pickle
-        pickle.dump(ret, open('losses.pkl', 'wb'))
-        print("Losses saved to losses.pkl")
-    else:
-        optimize(toi=True, visualize=True)
-        clear()
-        forward('final{}'.format(robot_id))
+    optimize(toi=True, visualize=True)
+    clear()
+    forward('final{}'.format(robot_id))
 
 
 if __name__ == '__main__':
