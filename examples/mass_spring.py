@@ -22,8 +22,8 @@ assert steps * 2 <= max_steps
 
 vis_resolution = 1024
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 loss = scalar()
 
@@ -46,8 +46,8 @@ spring_omega = 10
 damping = 15
 
 n_springs = 0
-spring_anchor_a = ti.var(ti.i32)
-spring_anchor_b = ti.var(ti.i32)
+spring_anchor_a = ti.field(ti.i32)
+spring_anchor_b = ti.field(ti.i32)
 spring_length = scalar()
 spring_stiffness = scalar()
 spring_actuation = scalar()
@@ -248,9 +248,8 @@ def forward(output=None, visualize=True):
                 else:
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
-                gui.line(
-                    get_pt(x[t, spring_anchor_a[i]]),
-                    get_pt(x[t, spring_anchor_b[i]]), c, r)
+                gui.line(get_pt(x[t, spring_anchor_a[i]]),
+                         get_pt(x[t, spring_anchor_b[i]]), c, r)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)

@@ -16,8 +16,8 @@ assert steps * 2 <= max_steps
 
 vis_resolution = 1024
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 

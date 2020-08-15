@@ -21,16 +21,16 @@ n_springs = 3
 spring_stiffness = 10
 damping = 20
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 loss = scalar()
 x = vec()
 v = vec()
 force = vec()
 
-spring_anchor_a = ti.var(ti.i32)
-spring_anchor_b = ti.var(ti.i32)
+spring_anchor_a = ti.field(ti.i32)
+spring_anchor_b = ti.field(ti.i32)
 spring_length = scalar()
 
 

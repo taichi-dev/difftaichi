@@ -25,9 +25,9 @@ steps = 1024
 gravity = 9.8
 target = [0.3, 0.6]
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(dim, dt=real)
-mat = lambda: ti.Matrix(dim, dim, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(dim, dtype=real)
+mat = lambda: ti.Matrix(dim, dim, dtype=real)
 
 x, v, x_avg = vec(), vec(), vec()
 grid_v_in, grid_m_in = vec(), scalar()

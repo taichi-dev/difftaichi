@@ -19,8 +19,8 @@ steps = 256
 assert steps * 2 <= max_steps
 amplify = 1
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 p = scalar()
 target = scalar()

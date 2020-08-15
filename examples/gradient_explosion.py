@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import math
 import sys
 
-x = ti.var(dt=ti.f32)
-v = ti.var(dt=ti.f32)
-a = ti.var(dt=ti.f32)
-loss = ti.var(dt=ti.f32)
-damping = ti.var(dt=ti.f32)
+x = ti.field(dtype=ti.f32)
+v = ti.field(dtype=ti.f32)
+a = ti.field(dtype=ti.f32)
+loss = ti.field(dtype=ti.f32)
+damping = ti.field(dtype=ti.f32)
 
 max_timesteps = 1024 * 1024
 

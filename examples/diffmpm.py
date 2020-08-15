@@ -25,12 +25,12 @@ steps = 1024
 gravity = 3.8
 target = [0.8, 0.2]
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(dim, dt=real)
-mat = lambda: ti.Matrix(dim, dim, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(dim, dtype=real)
+mat = lambda: ti.Matrix(dim, dim, dtype=real)
 
-actuator_id = ti.var(ti.i32)
-particle_type = ti.var(ti.i32)
+actuator_id = ti.field(ti.i32)
+particle_type = ti.field(ti.i32)
 x, v = vec(), vec()
 grid_v_in, grid_m_in = vec(), scalar()
 grid_v_out = vec()

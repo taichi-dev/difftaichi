@@ -17,8 +17,8 @@ seg_size = 256
 
 vis_resolution = 1024
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 loss = scalar()
 
@@ -112,7 +112,7 @@ def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (x[t] - goal[t]).norm_sqr())
 
 
-gui = ti.GUI("Electric", (1024, 1024), background_color=0x3C733F)
+gui = ti.GUI("Electric", (512, 512), background_color=0x3C733F)
 
 
 def forward(visualize=False, output=None):

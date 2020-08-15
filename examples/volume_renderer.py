@@ -23,7 +23,7 @@ camera_origin_radius = 1
 marching_steps = 1000
 learning_rate = 15
 
-scalar = lambda: ti.var(dt=real)
+scalar = lambda: ti.field(dtype=real)
 
 density = scalar()
 target_images = scalar()

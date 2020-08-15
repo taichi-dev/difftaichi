@@ -15,8 +15,8 @@ p_dims = num_iterations_gauss_seidel + 1
 steps = 100
 learning_rate = 100
 
-scalar = lambda: ti.var(dt=real)
-vector = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vector = lambda: ti.Vector(2, dtype=real)
 
 v = vector()
 div = scalar()

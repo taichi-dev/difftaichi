@@ -17,8 +17,8 @@ output_vis_interval = 1
 steps = 256
 amplify = 2
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 p = scalar()
 rendered = scalar()

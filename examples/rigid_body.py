@@ -16,8 +16,8 @@ assert steps * 2 <= max_steps
 
 vis_resolution = 1024
 
-scalar = lambda: ti.var(dt=real)
-vec = lambda: ti.Vector(2, dt=real)
+scalar = lambda: ti.field(dtype=real)
+vec = lambda: ti.Vector(2, dtype=real)
 
 loss = scalar()
 
@@ -56,8 +56,8 @@ spring_omega = 30
 default_actuation = 0.05
 
 n_springs = 0
-spring_anchor_a = ti.var(ti.i32)
-spring_anchor_b = ti.var(ti.i32)
+spring_anchor_a = ti.field(ti.i32)
+spring_anchor_b = ti.field(ti.i32)
 # spring_length = -1 means it is a joint
 spring_length = scalar()
 spring_offset_a = vec()
