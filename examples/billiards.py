@@ -97,7 +97,7 @@ def initialize():
     v[0, 0] = init_v
 
 
-gui = ti.core.GUI("Billiards", ti.veci(1024, 1024))
+gui = ti.GUI("Billiards", (1024, 1024), background_color=0x3C733F)
 
 
 def forward(visualize=False, output=None):
@@ -118,16 +118,13 @@ def forward(visualize=False, output=None):
 
     pixel_radius = int(radius * 1024) + 1
 
-    canvas = gui.get_canvas()
     for t in range(1, steps):
         collide(t - 1)
         advance(t)
 
         if (t + 1) % interval == 0 and visualize:
-            canvas.clear(0x3C733F)
-
-            canvas.circle(ti.vec(goal[0], goal[1])).radius(
-                pixel_radius // 2).color(0x00000).finish()
+            gui.clear()
+            gui.circle((goal[0], goal[1]), 0x00000, pixel_radius // 2)
 
             for i in range(n_balls):
                 if i == 0:
@@ -137,13 +134,12 @@ def forward(visualize=False, output=None):
                 else:
                     color = 0xF20530
 
-                canvas.circle(ti.vec(
-                    x[t, i][0],
-                    x[t, i][1])).radius(pixel_radius).color(color).finish()
+                gui.circle((x[t, i][0], x[t, i][1]), color, pixel_radius)
 
-            gui.update()
             if output:
-                gui.screenshot('billiards/{}/{:04d}.png'.format(output, t))
+                gui.show('billiards/{}/{:04d}.png'.format(output, t))
+            else:
+                gui.show()
 
     compute_loss(steps - 1)
 

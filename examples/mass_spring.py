@@ -201,8 +201,7 @@ def compute_loss(t: ti.i32):
     loss[None] = -x[t, head_id][0]
 
 
-gui = ti.core.GUI("Mass Spring Robot", ti.veci(1024, 1024))
-canvas = gui.get_canvas()
+gui = ti.GUI("Mass Spring Robot", (1024, 1024), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True):
@@ -230,18 +229,16 @@ def forward(output=None, visualize=True):
             advance_no_toi(t)
 
         if (t + 1) % interval == 0 and visualize:
-            canvas.clear(0xFFFFFF)
-            canvas.path(ti.vec(0, ground_height),
-                        ti.vec(1, ground_height)).color(0x0).radius(3).finish()
+            gui.clear()
+            gui.line((0, ground_height), (1, ground_height), 0x0, 3)
 
             def circle(x, y, color):
-                canvas.circle(ti.vec(x, y)).color(
-                    ti.rgb_to_hex(color)).radius(7).finish()
+                gui.circle((x, y), ti.rgb_to_hex(color), 7)
 
             for i in range(n_springs):
 
                 def get_pt(x):
-                    return ti.vec(x[0], x[1])
+                    return (x[0], x[1])
 
                 a = act[t - 1, i] * 0.5
                 r = 2
@@ -251,10 +248,9 @@ def forward(output=None, visualize=True):
                 else:
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
-                canvas.path(
+                gui.line(
                     get_pt(x[t, spring_anchor_a[i]]),
-                    get_pt(x[t,
-                             spring_anchor_b[i]])).color(c).radius(r).finish()
+                    get_pt(x[t, spring_anchor_b[i]]), c, r)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)
@@ -263,9 +259,10 @@ def forward(output=None, visualize=True):
                 circle(x[t, i][0], x[t, i][1], color)
             # circle(goal[None][0], goal[None][1], (0.6, 0.2, 0.2))
 
-            gui.update()
             if output:
-                gui.screenshot('mass_spring/{}/{:04d}.png'.format(output, t))
+                gui.show('mass_spring/{}/{:04d}.png'.format(output, t))
+            else:
+                gui.show()
 
     loss[None] = 0
     compute_loss(steps - 1)

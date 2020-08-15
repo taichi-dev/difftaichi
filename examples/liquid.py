@@ -4,7 +4,6 @@ import os
 import math
 import numpy as np
 import random
-import cv2
 import matplotlib.pyplot as plt
 import time
 
@@ -373,10 +372,6 @@ class Scene:
     def set_n_actuators(self, n_act):
         global n_actuators
         n_actuators = n_act
-
-
-gui = ti.core.GUI("Differentiable MPM", ti.veci(1024, 1024))
-canvas = gui.get_canvas()
 
 
 @ti.kernel
