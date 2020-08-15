@@ -26,8 +26,8 @@ gravity = 9.8
 target = [0.3, 0.6]
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(dim, dtype=real)
-mat = lambda: ti.Matrix(dim, dim, dtype=real)
+vec = lambda: ti.Vector.field(dim, dtype=real)
+mat = lambda: ti.Matrix.field(dim, dim, dtype=real)
 
 x, v, x_avg = vec(), vec(), vec()
 grid_v_in, grid_m_in = vec(), scalar()

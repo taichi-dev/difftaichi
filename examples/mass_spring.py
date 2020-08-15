@@ -227,7 +227,10 @@ def forward(output=None, visualize=True):
             advance_no_toi(t)
 
         if (t + 1) % interval == 0 and visualize:
-            gui.line(begin=(0, ground_height), end=(1, ground_height), color=0x0, radius=3)
+            gui.line(begin=(0, ground_height),
+                     end=(1, ground_height),
+                     color=0x0,
+                     radius=3)
 
             def circle(x, y, color):
                 gui.circle((x, y), ti.rgb_to_hex(color), 7)
@@ -246,7 +249,9 @@ def forward(output=None, visualize=True):
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
                 gui.line(begin=get_pt(x[t, spring_anchor_a[i]]),
-                         end=get_pt(x[t, spring_anchor_b[i]]), radius=r, color=c)
+                         end=get_pt(x[t, spring_anchor_b[i]]),
+                         radius=r,
+                         color=c)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)

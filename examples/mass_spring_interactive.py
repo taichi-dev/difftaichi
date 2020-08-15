@@ -209,7 +209,9 @@ def forward(output=None, visualize=True):
 
         if (t + 1) % interval == 0 and visualize:
             gui.clear()
-            gui.line((0, ground_height), (1, ground_height), color=0x0, radius=3)
+            gui.line((0, ground_height), (1, ground_height),
+                     color=0x0,
+                     radius=3)
 
             def circle(x, y, color):
                 gui.circle((x, y), ti.rgb_to_hex(color), 7)
@@ -228,7 +230,9 @@ def forward(output=None, visualize=True):
                     r = 4
                     c = ti.rgb_to_hex((0.5 + a, 0.5 - abs(a), 0.5 - a))
                 gui.line(get_pt(x[t, spring_anchor_a[i]]),
-                         get_pt(x[t, spring_anchor_b[i]]), color=c, radius=r)
+                         get_pt(x[t, spring_anchor_b[i]]),
+                         color=c,
+                         radius=r)
 
             for i in range(n_objects):
                 color = (0.4, 0.6, 0.6)
@@ -334,7 +338,7 @@ def optimize(visualize):
                 weights2[i, j] -= scale * weights2.grad[i, j]
             bias2[i] -= scale * bias2.grad[i]
         losses.append(loss[None])
-        
+
         print(time.time() - t, ' 2')
 
     losses = gaussian_filter(losses, 10)
@@ -350,7 +354,7 @@ else:
 
 if __name__ == '__main__':
     setup_robot(*robots[robot_id]())
-    
+
     optimize(visualize=False)
     clear()
     forward('final{}'.format(robot_id))

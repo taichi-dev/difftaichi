@@ -25,31 +25,37 @@ scalar = lambda: ti.field(dtype=real)
 vec = lambda: ti.Vector(dim, dtype=real)
 mat = lambda: ti.Matrix(dim, dim, dtype=real)
 
-x = ti.Vector(dim, dtype=real, shape=(max_steps, n_particles), needs_grad=True)
-x_avg = ti.Vector(dim, dtype=real, shape=(), needs_grad=True)
-v = ti.Vector(dim, dtype=real, shape=(max_steps, n_particles), needs_grad=True)
-grid_v_in = ti.Vector(dim,
-                      dtype=real,
-                      shape=(max_steps, n_grid, n_grid),
-                      needs_grad=True)
-grid_v_out = ti.Vector(dim,
-                       dtype=real,
-                       shape=(max_steps, n_grid, n_grid),
-                       needs_grad=True)
+x = ti.Vector.field(dim,
+                    dtype=real,
+                    shape=(max_steps, n_particles),
+                    needs_grad=True)
+x_avg = ti.Vector.field(dim, dtype=real, shape=(), needs_grad=True)
+v = ti.Vector.field(dim,
+                    dtype=real,
+                    shape=(max_steps, n_particles),
+                    needs_grad=True)
+grid_v_in = ti.Vector.field(dim,
+                            dtype=real,
+                            shape=(max_steps, n_grid, n_grid),
+                            needs_grad=True)
+grid_v_out = ti.Vector.field(dim,
+                             dtype=real,
+                             shape=(max_steps, n_grid, n_grid),
+                             needs_grad=True)
 grid_m_in = ti.field(dtype=real,
                      shape=(max_steps, n_grid, n_grid),
                      needs_grad=True)
-C = ti.Matrix(dim,
-              dim,
-              dtype=real,
-              shape=(max_steps, n_particles),
-              needs_grad=True)
-F = ti.Matrix(dim,
-              dim,
-              dtype=real,
-              shape=(max_steps, n_particles),
-              needs_grad=True)
-init_v = ti.Vector(dim, dtype=real, shape=(), needs_grad=True)
+C = ti.Matrix.field(dim,
+                    dim,
+                    dtype=real,
+                    shape=(max_steps, n_particles),
+                    needs_grad=True)
+F = ti.Matrix.field(dim,
+                    dim,
+                    dtype=real,
+                    shape=(max_steps, n_particles),
+                    needs_grad=True)
+init_v = ti.Vector.field(dim, dtype=real, shape=(), needs_grad=True)
 loss = ti.field(dtype=real, shape=(), needs_grad=True)
 
 

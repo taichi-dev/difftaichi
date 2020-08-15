@@ -31,8 +31,8 @@ target = [0.8, 0.2, 0.2]
 use_apic = False
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(dim, dtype=real)
-mat = lambda: ti.Matrix(dim, dim, dtype=real)
+vec = lambda: ti.Vector.field(dim, dtype=real)
+mat = lambda: ti.Matrix.field(dim, dim, dtype=real)
 
 actuator_id = ti.field(ti.i32)
 particle_type = ti.field(ti.i32)
@@ -41,7 +41,7 @@ grid_v_in, grid_m_in = vec(), scalar()
 grid_v_out = vec()
 C, F = mat(), mat()
 
-screen = ti.Vector(3, dtype=real)
+screen = ti.Vector.field(3, dtype=real)
 
 loss = scalar()
 

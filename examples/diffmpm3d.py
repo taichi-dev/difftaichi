@@ -30,8 +30,8 @@ target = [0.8, 0.2, 0.2]
 use_apic = False
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(dim, dtype=real)
-mat = lambda: ti.Matrix(dim, dim, dtype=real)
+vec = lambda: ti.Vector.field(dim, dtype=real)
+mat = lambda: ti.Matrix.field(dim, dim, dtype=real)
 
 actuator_id = ti.field(ti.i32)
 particle_type = ti.field(ti.i32)
@@ -40,7 +40,7 @@ grid_v_in, grid_m_in = vec(), scalar()
 grid_v_out = vec()
 C, F = mat(), mat()
 
-screen = ti.Vector(3, dtype=real)
+screen = ti.Vector.field(3, dtype=real)
 
 loss = scalar()
 
@@ -380,7 +380,7 @@ res = [visualize_resolution, visualize_resolution]
 
 
 @ti.kernel
-def copy_back_and_clear(img: np.ndarray):
+def copy_back_and_clear(img: ti.ext_arr()):
     for i in range(res[0]):
         for j in range(res[1]):
             coord = ((res[1] - 1 - j) * res[0] + i) * 3

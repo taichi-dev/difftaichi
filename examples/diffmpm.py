@@ -26,8 +26,8 @@ gravity = 3.8
 target = [0.8, 0.2]
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(dim, dtype=real)
-mat = lambda: ti.Matrix(dim, dim, dtype=real)
+vec = lambda: ti.Vector.field(dim, dtype=real)
+mat = lambda: ti.Matrix.field(dim, dim, dtype=real)
 
 actuator_id = ti.field(ti.i32)
 particle_type = ti.field(ti.i32)
