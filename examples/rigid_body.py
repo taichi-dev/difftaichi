@@ -310,7 +310,7 @@ def compute_loss(t: ti.i32):
     loss[None] = (x[t, head_id] - goal[None]).norm()
 
 
-gui = ti.GUI('Rigid Body Simulation', (1024, 1024), background_color=0xFFFFFF)
+gui = ti.GUI('Rigid Body Simulation', (512, 512), background_color=0xFFFFFF)
 
 
 def forward(output=None, visualize=True):
