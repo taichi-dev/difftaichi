@@ -174,24 +174,6 @@ def advance_toi(t: ti.i32):
 
 
 @ti.kernel
-def advance_no_toi(t: ti.i32):
-    for i in range(n_objects):
-        s = math.exp(-dt * damping)
-        old_v = s * v[t - 1, i] + dt * gravity * ti.Vector([0.0, 1.0
-                                                            ]) + v_inc[t, i]
-        old_x = x[t - 1, i]
-        new_v = old_v
-        depth = old_x[1] - ground_height
-        if depth < 0 and new_v[1] < 0:
-            # friction projection
-            new_v[0] = 0
-            new_v[1] = 0
-        new_x = old_x + dt * new_v
-        v[t, i] = new_v
-        x[t, i] = new_x
-
-
-@ti.kernel
 def compute_loss(t: ti.i32):
     ti.atomic_add(loss[None], dt * (target_v[t][0] - v[t, head_id][0]))**2
 
@@ -225,10 +207,7 @@ def forward(output=None, visualize=True):
         nn1(t - 1)
         nn2(t - 1)
         apply_spring_force(t - 1)
-        if use_toi:
-            advance_toi(t)
-        else:
-            advance_no_toi(t)
+        advance_toi(t)
         compute_loss(t)
 
         if (t + 1) % interval == 0 and visualize:
@@ -326,8 +305,11 @@ def optimize(toi, visualize):
     for iter in range(200):
         clear()
 
+        import time
+        t = time.time()
         with ti.Tape(loss):
-            forward(visualize=visualize)
+            forward(visualize=iter % 10 == 0)
+        print(time.time() - t, ' 1')
 
         print('Iter=', iter, 'Loss=', loss[None])
 
@@ -357,10 +339,10 @@ def optimize(toi, visualize):
                 weights2[i, j] -= scale * weights2.grad[i, j]
             bias2[i] -= scale * bias2.grad[i]
         losses.append(loss[None])
+        
+        print(time.time() - t, ' 2')
 
     losses = gaussian_filter(losses, 10)
-    plt.plot(losses)
-    plt.show()
     return losses
 
 
@@ -371,13 +353,9 @@ if len(sys.argv) != 2:
 else:
     robot_id = int(sys.argv[1])
 
-def main():
+if __name__ == '__main__':
     setup_robot(*robots[robot_id]())
-
-    optimize(toi=True, visualize=True)
+    
+    optimize(toi=True, visualize=False)
     clear()
     forward('final{}'.format(robot_id))
-
-
-if __name__ == '__main__':
-    main()
