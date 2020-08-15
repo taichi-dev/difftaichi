@@ -20,7 +20,8 @@ Most of the 10 differentiable simulators can be implemented **within 2-3 hours**
 
 Questions regarding the simulators/autodiff compiler go to Yuanming Hu (yuanming __at__ mit.edu) or [Issues](https://github.com/yuanming-hu/difftaichi/issues).
 
-### Note: please make sure you are using Taichi >= v0.6.16
+### Note: please make sure you are using Taichi >= v0.6.26
+On August 14 2020, some non-example scripts under `examples` were moved to `examples/misc`. These scripts are used to generate figures in the paper, and will **not** be updated with Taichi anymore. If you want to run them, please use `taichi==0.6.26`.
 
 ## How to run
 Step 1: Install [`Taichi`](https://github.com/taichi-dev/taichi) with `pip`:
@@ -91,7 +92,6 @@ See the video for the remaining two simulators.
   journal={ICLR},
   year={2020}
 }
-
 @article{hu2019taichi,
   title={Taichi: a language for high-performance computation on spatially sparse data structures},
   author={Hu, Yuanming and Li, Tzu-Mao and Anderson, Luke and Ragan-Kelley, Jonathan and Durand, Fr{\'e}do},
