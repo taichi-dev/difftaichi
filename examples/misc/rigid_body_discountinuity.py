@@ -16,7 +16,7 @@ assert steps * 2 <= max_steps
 vis_resolution = 1024
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 
@@ -193,11 +193,11 @@ def forward(output=None, visualize=True):
                     points.append((pos[0], pos[1]))
 
                 for k in range(4):
-                    gui.line(points[k], points[(k + 1) % 4], 0x0, 2)
+                    gui.line(points[k], points[(k + 1) % 4], color=0x0, radius=2)
 
             offset = 0.003
             gui.line((0.05, ground_height - offset),
-                     (0.95, ground_height - offset), 0xAAAAAA, 2)
+                     (0.95, ground_height - offset), color=0xAAAAAA, radius=2)
 
             if output:
                 gui.screenshot('rigid_body/{}/{:04d}.png'.format(output, t))

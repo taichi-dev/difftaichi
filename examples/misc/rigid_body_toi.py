@@ -19,7 +19,7 @@ assert steps * 2 <= max_steps
 vis_resolution = 1024
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 
@@ -97,7 +97,7 @@ def forward(output=None, visualize=True):
             gui.circle((x[t, 0][0], x[t, 0][1]), 0x0, 10)
             offset = 0.003
             gui.line((0.05, ground_height - offset),
-                     (0.95, ground_height - offset), 0xAAAAAA, 2)
+                     (0.95, ground_height - offset), color=0xAAAAAA, radius=2)
 
             if output:
                 gui.show('rigid_body/{}/{:04d}.png'.format(output, t))

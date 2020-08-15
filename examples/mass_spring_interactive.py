@@ -151,9 +151,6 @@ def apply_spring_force(t: ti.i32):
         ti.atomic_add(v_inc[t + 1, b], impulse)
 
 
-use_toi = False
-
-
 @ti.kernel
 def advance_toi(t: ti.i32):
     for i in range(n_objects):
@@ -286,9 +283,7 @@ def setup_robot(objects, springs):
         spring_actuation[i] = s[4]
 
 
-def optimize(toi, visualize):
-    global use_toi
-    use_toi = toi
+def optimize(visualize):
     for i in range(n_hidden):
         for j in range(n_input_states()):
             weights1[i, j] = np.random.randn() * math.sqrt(
@@ -356,6 +351,6 @@ else:
 if __name__ == '__main__':
     setup_robot(*robots[robot_id]())
     
-    optimize(toi=True, visualize=False)
+    optimize(visualize=False)
     clear()
     forward('final{}'.format(robot_id))
