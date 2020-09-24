@@ -18,7 +18,7 @@ steps = 256
 amplify = 2
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 p = scalar()
 rendered = scalar()

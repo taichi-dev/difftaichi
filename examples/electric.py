@@ -18,7 +18,7 @@ seg_size = 256
 vis_resolution = 1024
 
 scalar = lambda: ti.field(dtype=real)
-vec = lambda: ti.Vector(2, dtype=real)
+vec = lambda: ti.Vector.field(2, dtype=real)
 
 loss = scalar()
 
