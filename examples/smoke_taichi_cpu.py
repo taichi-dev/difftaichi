@@ -17,7 +17,7 @@ steps = 100
 learning_rate = 100
 
 scalar = lambda: ti.field(dtype=real)
-vector = lambda: ti.Vector(2, dtype=real)
+vector = lambda: ti.Vector.field(2, dtype=real)
 
 v = vector()
 div = scalar()
