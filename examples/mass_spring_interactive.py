@@ -172,7 +172,7 @@ def advance_toi(t: ti.i32):
 
 @ti.kernel
 def compute_loss(t: ti.i32):
-    ti.atomic_add(loss[None], dt * (target_v[t][0] - v[t, head_id][0]))**2
+    ti.atomic_add(loss[None], dt * (target_v[t][0] - v[t, head_id][0])**2)
 
 
 gui = ti.GUI("Mass Spring Robot", (512, 512), background_color=0xFFFFFF)
