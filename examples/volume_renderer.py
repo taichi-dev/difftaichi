@@ -6,32 +6,37 @@ from imageio import imwrite
 
 os.makedirs('output_volume_renderer', exist_ok=True)
 
-real = ti.f32
-ti.init(default_fp=real, arch=ti.cuda)
+ti_float = ti.f32
+ti.init(default_fp=ti_float, arch=ti.cuda)
 
 num_iterations = 100
-res = 512
-density_res = 128
-inv_density_res = 1.0 / density_res
-res_f32 = float(res)
+render_resolution = 512
+volume_dimension = 128
+inv_vol_dim = 1.0 / volume_dimension
+render_res_f32 = float(render_resolution)
 dx = 0.02
 n_views = 7
-torus_r1 = 0.4
-torus_r2 = 0.1
 fov = 1
 camera_origin_radius = 1
 marching_steps = 1000
 learning_rate = 15
 
-scalar = lambda: ti.field(dtype=real)
 
-density = scalar()
-target_images = scalar()
-images = scalar()
-loss = scalar()
+def create_scalar_field():
+    return ti.field(dtype=ti_float)
 
-ti.root.dense(ti.ijk, density_res).place(density)
-ti.root.dense(ti.l, n_views).dense(ti.ij, res).place(target_images, images)
+
+density = create_scalar_field()
+target_images = create_scalar_field()
+images = create_scalar_field()
+loss = create_scalar_field()
+
+# Configuring data layouts here
+# see https://taichi.graphics/docs/develop/documentation/advanced/layout.html
+ti.root.dense(ti.ijk, volume_dimension).place(density)
+ti.root.dense(ti.l,
+              n_views).dense(ti.ij,
+                             render_resolution).place(target_images, images)
 ti.root.place(loss)
 ti.root.lazy_grad()
 
@@ -39,35 +44,40 @@ ti.root.lazy_grad()
 @ti.func
 def in_box(x, y, z):
     # The density grid is contained in a unit box [-0.5, 0.5] x [-0.5, 0.5] x [-0.5, 0.5]
-    return x >= -0.5 and x < 0.5 and y >= -0.5 and y < 0.5 and z >= -0.5 and z < 0.5
+    return -0.5 <= x < 0.5 and -0.5 <= y < 0.5 and -0.5 <= z < 0.5
 
 
 @ti.kernel
 def ray_march(field: ti.template(), angle: ti.f32, view_id: ti.i32):
-    for pixel in range(res * res):
+    for pixel in range(render_resolution * render_resolution):
         for k in range(marching_steps):
-            x = pixel // res
-            y = pixel - x * res
-
+            x = pixel // render_resolution
+            y = pixel - x * render_resolution
+            # camera on z-x plane
             camera_origin = ti.Vector([
                 camera_origin_radius * ti.sin(angle), 0,
                 camera_origin_radius * ti.cos(angle)
             ])
-            dir = ti.Vector([
-                fov * (ti.cast(x, ti.f32) /
-                       (res_f32 / 2.0) - res_f32 / res_f32),
-                fov * (ti.cast(y, ti.f32) / (res_f32 / 2.0) - 1.0), -1.0
+            direction = ti.Vector([
+                fov *
+                (ti.cast(x, ti.f32) /
+                 (render_res_f32 / 2.0) - render_res_f32 / render_res_f32),
+                fov * (ti.cast(y, ti.f32) / (render_res_f32 / 2.0) - 1.0), -1.0
             ])
 
-            length = ti.sqrt(dir[0] * dir[0] + dir[1] * dir[1] +
-                             dir[2] * dir[2])
-            dir /= length
+            length = ti.sqrt(direction[0] * direction[0] +
+                             direction[1] * direction[1] +
+                             direction[2] * direction[2])
+            direction /= length
 
-            rotated_x = dir[0] * ti.cos(angle) + dir[2] * ti.sin(angle)
-            rotated_z = -dir[0] * ti.sin(angle) + dir[2] * ti.cos(angle)
-            dir[0] = rotated_x
-            dir[2] = rotated_z
-            point = camera_origin + (k + 1) * dx * dir
+            # rotate a ray's direction
+            rotated_x = direction[0] * ti.cos(angle) + direction[2] * ti.sin(
+                angle)
+            rotated_z = -direction[0] * ti.sin(angle) + direction[2] * ti.cos(
+                angle)
+            direction[0] = rotated_x
+            direction[2] = rotated_z
+            point = camera_origin + (k + 1) * dx * direction
 
             # Convert to coordinates of the density grid box
             box_x = point[0] + 0.5
@@ -75,12 +85,13 @@ def ray_march(field: ti.template(), angle: ti.f32, view_id: ti.i32):
             box_z = point[2] + 0.5
 
             # Density grid location
-            index_x = ti.cast(ti.floor(box_x * density_res), ti.i32)
-            index_y = ti.cast(ti.floor(box_y * density_res), ti.i32)
-            index_z = ti.cast(ti.floor(box_z * density_res), ti.i32)
-            index_x = ti.max(0, ti.min(index_x, density_res - 1))
-            index_y = ti.max(0, ti.min(index_y, density_res - 1))
-            index_z = ti.max(0, ti.min(index_z, density_res - 1))
+            index_x = ti.cast(ti.floor(box_x * volume_dimension), ti.i32)
+            index_y = ti.cast(ti.floor(box_y * volume_dimension), ti.i32)
+            index_z = ti.cast(ti.floor(box_z * volume_dimension), ti.i32)
+            # in range [0, vol_dimension -1] ^ 3
+            index_x = ti.max(0, ti.min(index_x, volume_dimension - 1))
+            index_y = ti.max(0, ti.min(index_y, volume_dimension - 1))
+            index_z = ti.max(0, ti.min(index_z, volume_dimension - 1))
 
             flag = 0
             if in_box(point[0], point[1], point[2]):
@@ -92,12 +103,12 @@ def ray_march(field: ti.template(), angle: ti.f32, view_id: ti.i32):
 
 
 @ti.kernel
-def compute_loss(view_id: ti.i32):
-    for i in range(res):
-        for j in range(res):
-            loss[None] += (images[view_id, i, j] -
-                           target_images[view_id, i, j])**2 * (1.0 /
-                                                               (res * res))
+def compute_mse(view_id: ti.i32):
+    for i in range(render_resolution):
+        for j in range(render_resolution):
+            loss[None] += (images[view_id, i, j] - target_images[view_id, i, j]
+                           )**2 * (1.0 /
+                                   (render_resolution * render_resolution))
 
 
 @ti.kernel
@@ -118,39 +129,16 @@ def create_target_images():
         ray_march(target_images, math.pi / n_views * view - math.pi / 2.0,
                   view)
 
-        img = np.zeros((res, res), dtype=np.float32)
-        for i in range(res):
-            for j in range(res):
+        img = np.zeros((render_resolution, render_resolution),
+                       dtype=np.float32)
+        for i in range(render_resolution):
+            for j in range(render_resolution):
                 img[i, j] = target_images[view, i, j]
         img /= np.max(img)
         img = 1 - img
 
         imwrite("{}/target_{:04d}.png".format("output_volume_renderer", view),
                 100 * img)
-
-
-@ti.func
-def in_torus(x, y, z):
-    len_xz = ti.sqrt(x * x + z * z)
-    qx = len_xz - torus_r1
-    len_q = ti.sqrt(qx * qx + y * y)
-    dist = len_q - torus_r2
-    return dist < 0
-
-
-@ti.kernel
-def create_torus_density():
-    for i, j, k in density:
-        # Convert to density coordinates
-        x = ti.cast(k, ti.f32) * inv_density_res - 0.5
-        y = ti.cast(j, ti.f32) * inv_density_res - 0.5
-        z = ti.cast(i, ti.f32) * inv_density_res - 0.5
-
-        # Swap x, y to rotate the torus
-        if in_torus(y, x, z):
-            density[i, j, k] = inv_density_res
-        else:
-            density[i, j, k] = 0.0
 
 
 @ti.kernel
@@ -168,23 +156,22 @@ def main():
         )
         exit(0)
     volume = np.fromfile("bunny_128.bin", dtype=np.float32).reshape(
-        (density_res, density_res, density_res))
-    for i in range(density_res):
-        for j in range(density_res):
-            for k in range(density_res):
-                density[i, j, k] = volume[i, density_res - j - 1, k]
+        (volume_dimension, volume_dimension, volume_dimension))
+    for i in range(volume_dimension):
+        for j in range(volume_dimension):
+            for k in range(volume_dimension):
+                density[i, j, k] = volume[i, volume_dimension - j - 1, k]
 
-    #create_torus_density()
     create_target_images()
     clear_density()
 
-    for iter in range(num_iterations):
+    for iteration in range(num_iterations):
         clear_images()
         with ti.Tape(loss):
             for view in range(n_views):
                 ray_march(images, math.pi / n_views * view - math.pi / 2.0,
                           view)
-                compute_loss(view)
+                compute_mse(view)
 
         views = images.to_numpy()
         for view in range(n_views):
@@ -192,13 +179,13 @@ def main():
             m = np.max(img)
             if m > 0:
                 img /= m
-            img = 1 - img
+            img = 1 - img  # high density gives darker color
             imwrite(
                 "{}/image_{:04d}_{:04d}.png".format("output_volume_renderer",
-                                                    iter, view),
+                                                    iteration, view),
                 (255 * img).astype(np.uint8))
 
-        print('Iter', iter, ' Loss =', loss[None])
+        print('Iter', iteration, ' Loss =', loss[None])
         apply_grad()
 
 
