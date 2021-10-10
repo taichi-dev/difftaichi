@@ -28,7 +28,6 @@ initial = scalar()
 loss = scalar()
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p)
     ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p.grad)
@@ -117,6 +116,7 @@ def main():
     target_img -= target_img.mean()
     target_img = cv2.resize(target_img, (n_grid, n_grid))
     cv2.imshow('target', target_img * amplify + 0.5)
+    place()
     # print(target_img.min(), target_img.max())
     for i in range(n_grid):
         for j in range(n_grid):

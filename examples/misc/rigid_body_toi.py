@@ -32,7 +32,6 @@ n_objects = 1
 ground_height = 0.1
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.l, max_steps).dense(ti.i, n_objects).place(x, v)
     ti.root.place(loss)
@@ -78,6 +77,7 @@ def compute_loss(t: ti.i32):
 
 gui = ti.GUI("Rigid Body", (1024, 1024), background_color=0xFFFFFF)
 
+
 def forward(output=None, visualize=True):
     interval = vis_interval
     total_steps = steps
@@ -109,6 +109,7 @@ def forward(output=None, visualize=True):
 
 
 def main():
+    place()
     zoom = len(sys.argv) > 1
     for toi in [False, True]:
         losses = []

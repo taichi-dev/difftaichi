@@ -93,8 +93,8 @@ def compute_loss(t: ti.i32):
 
 @ti.kernel
 def initialize():
-    x[0, 0] = init_x
-    v[0, 0] = init_v
+    x[0, 0] = init_x[None]
+    v[0, 0] = init_v[None]
 
 
 gui = ti.GUI("Billiards", (1024, 1024), background_color=0x3C733F)

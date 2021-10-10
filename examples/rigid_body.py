@@ -81,7 +81,6 @@ def n_input_states():
     return n_sin_waves + 6 * n_objects + 2
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.l,
                   max_steps).dense(ti.i,
@@ -417,6 +416,7 @@ def setup_robot(objects, springs, h_id):
     global n_objects, n_springs
     n_objects = len(objects)
     n_springs = len(springs)
+    place()
 
     print('n_objects=', n_objects, '   n_springs=', n_springs)
 

@@ -45,7 +45,6 @@ penalty = 1e4
 damping = 0
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.l,
                   max_steps).dense(ti.i,
@@ -217,6 +216,7 @@ def clear_states():
 
 
 def main():
+    place()
     for fric in [0, 1]:
         losses = []
         grads = []

@@ -57,7 +57,6 @@ act_strength = 5
 visualize_resolution = 256
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.ij, (n_actuators, n_sin_waves)).place(weights)
     ti.root.dense(ti.i, n_actuators).place(bias)
@@ -424,6 +423,7 @@ def main():
     robot(scene)
     # scene.add_rect(0.4, 0.4, 0.2, 0.1, 0.3, 0.1, -1, 1)
     scene.finalize()
+    place()
 
     for i in range(n_actuators):
         for j in range(n_sin_waves):

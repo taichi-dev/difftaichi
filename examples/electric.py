@@ -46,7 +46,6 @@ gravitation_position = [[pad, pad], [pad, 1 - pad], [1 - pad, 1 - pad],
                         [1 - pad, 0.5]]
 
 
-@ti.layout
 def place():
     ti.root.dense(ti.l, max_steps).place(x, v)
     ti.root.dense(ti.l, max_steps).dense(ti.i, n_hidden).place(hidden)
@@ -180,6 +179,7 @@ def initialize():
 
 
 def optimize():
+
     initialize()
     forward(visualize=True, output='initial')
 
@@ -219,6 +219,7 @@ def optimize():
 
 
 if __name__ == '__main__':
+    place()
     for i in range(8):
         for j in range(n_hidden):
             weight1[i, j] = (random.random() - 0.5) * 0.3
