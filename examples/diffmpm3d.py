@@ -389,7 +389,7 @@ def copy_back_and_clear(img: ti.ext_arr()):
 
 
 def robot(scene):
-    block_size = 0.1
+    block_size = 0.1  # change the block_size to 0.05 if run out of GPU memory
     # scene.set_offset(0.1, 0.10, 0.3)
     scene.set_offset(0.1, 0.05, 0.3)
 

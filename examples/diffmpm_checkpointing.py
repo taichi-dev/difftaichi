@@ -62,7 +62,7 @@ loss = ti.field(dtype=real, shape=(), needs_grad=True)
 @ti.kernel
 def set_v():
     for i in range(n_particles):
-        v[0, i] = init_v
+        v[0, i] = init_v[None]
 
 
 @ti.kernel
@@ -151,11 +151,11 @@ def compute_x_avg():
 
 @ti.kernel
 def compute_loss():
-    dist = (x_avg - ti.Vector(target))**2
+    dist = (x_avg[None] - ti.Vector(target))**2
     loss[None] = 0.5 * (dist(0) + dist(1))
 
 
-@ti.complex_kernel
+@ti.ad.grad_replaced
 def substep(s):
     clear_grid()
     p2g(s)
@@ -163,7 +163,7 @@ def substep(s):
     g2p(s)
 
 
-@ti.complex_kernel_grad(substep)
+@ti.ad.grad_for(substep)
 def substep_grad(s):
     clear_grid()
     p2g(s)
@@ -203,8 +203,8 @@ for i in range(30):
     grad = init_v.grad[None]
     print('loss=', l, '   grad=', (grad[0], grad[1]))
     learning_rate = 10
-    init_v(0)[None] -= learning_rate * grad[0]
-    init_v(1)[None] -= learning_rate * grad[1]
+    init_v.get_scalar_field(0)[None] -= learning_rate * grad[0]
+    init_v.get_scalar_field(1)[None] -= learning_rate * grad[1]
 
     # visualize
     for s in range(63, steps, 64):
@@ -212,8 +212,8 @@ for i in range(30):
         img = np.zeros(shape=(scale * n_grid, scale * n_grid)) + 0.3
         total = [0, 0]
         for i in range(n_particles):
-            p_x = int(scale * x(0)[s, i] / dx)
-            p_y = int(scale * x(1)[s, i] / dx)
+            p_x = int(scale * x.get_scalar_field(0)[s, i] / dx)
+            p_y = int(scale * x.get_scalar_field(1)[s, i] / dx)
             total[0] += p_x
             total[1] += p_y
             img[p_x, p_y] = 1

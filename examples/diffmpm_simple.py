@@ -5,7 +5,7 @@ real = ti.f32
 ti.init(arch=ti.cuda, default_fp=real)
 
 dim = 2
-N = 60
+N = 60  # reduce to 30 if run out of GPU memory
 n_particles = N * N
 n_grid = 120
 dx = 1 / n_grid
@@ -62,7 +62,7 @@ loss = ti.field(dtype=real, shape=(), needs_grad=True)
 @ti.kernel
 def set_v():
     for i in range(n_particles):
-        v[0, i] = init_v
+        v[0, i] = init_v[None]
 
 
 @ti.kernel
@@ -139,7 +139,7 @@ def compute_x_avg():
 
 @ti.kernel
 def compute_loss():
-    dist = (x_avg - ti.Vector(target))**2
+    dist = (x_avg[None] - ti.Vector(target))**2
     loss[None] = 0.5 * (dist(0) + dist(1))
 
 

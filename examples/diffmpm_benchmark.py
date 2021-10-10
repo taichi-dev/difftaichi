@@ -38,27 +38,26 @@ init_v = vec()
 loss = scalar()
 
 
-@ti.layout
 def place():
     def p(x):
-        for i in x.entries:
-            ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(i)
-            ti.root.dense(ti.l, max_steps).dense(ti.k,
-                                                 n_particles).place(i.grad)
+        for i in range(dim):
+            ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x.get_scalar_field(i))
+            # ti.root.dense(ti.l, max_steps).dense(ti.k,
+            #                                      n_particles).place(x.get_scalar_field(i).grad)
 
-    # ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
-    p(x)
-    p(v)
-    p(C)
-    p(F)
+    ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
+    # p(x)
+    # p(v)
+    # p(C)
+    # p(F)
 
     def pg(x):
         # ti.root.dense(ti.ij, n_grid // 8).dense(ti.ij, 8).place(x)
         ti.root.dense(ti.ij, n_grid).place(x)
 
     def pgv(x):
-        for i in x.entries:
-            ti.root.dense(ti.ij, n_grid).place(i)
+        for i in range(dim):
+            ti.root.dense(ti.ij, n_grid).place(x.get_scalar_field(i))
 
     pgv(grid_v_in)
     pg(grid_m_in)
@@ -73,7 +72,7 @@ def place():
 @ti.kernel
 def set_v():
     for i in range(n_particles):
-        v[0, i] = init_v
+        v[0, i] = init_v[None]
 
 
 @ti.kernel
@@ -162,11 +161,11 @@ def compute_x_avg():
 
 @ti.kernel
 def compute_loss():
-    dist = (x_avg - ti.Vector(target))**2
+    dist = (x_avg[None] - ti.Vector(target))**2
     loss[None] = 0.5 * (dist(0) + dist(1))
 
 
-@ti.complex_kernel
+@ti.ad.grad_replaced
 def substep(s):
     clear_grid()
     p2g(s)
@@ -174,7 +173,7 @@ def substep(s):
     g2p(s)
 
 
-@ti.complex_kernel_grad(substep)
+@ti.ad.grad_for(substep)
 def substep_grad(s):
     clear_grid()
     p2g(s)
@@ -195,7 +194,7 @@ def benchmark():
         grid_op()
         g2p(0)
     ti.sync()
-    ti.kernel_profiler_clear()
+    ti.clear_kernel_profile_info()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -204,14 +203,14 @@ def benchmark():
         g2p(0)
     ti.sync()
     print('forward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.kernel_profiler_print()
+    ti.print_kernel_profile_info()
 
     for i in range(1):
         p2g.grad(0)
         grid_op.grad()
         g2p.grad(0)
     ti.sync()
-    ti.kernel_profiler_clear()
+    ti.clear_kernel_profile_info()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -220,10 +219,11 @@ def benchmark():
         p2g.grad(0)
     ti.sync()
     print('backward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.kernel_profiler_print()
+    ti.print_kernel_profile_info()
 
 
 def main():
+    place()
     # initialization
     init_v[None] = [0, 0]
 
@@ -254,8 +254,8 @@ def main():
         grad = init_v.grad[None]
         print('loss=', l, '   grad=', (grad[0], grad[1]))
         learning_rate = 10
-        init_v(0)[None] -= learning_rate * grad[0]
-        init_v(1)[None] -= learning_rate * grad[1]
+        init_v.get_scalar_field(0)[None] -= learning_rate * grad[0]
+        init_v.get_scalar_field(1)[None] -= learning_rate * grad[1]
 
         # visualize
         for s in range(63, steps, 64):
@@ -263,8 +263,8 @@ def main():
             img = np.zeros(shape=(scale * n_grid, scale * n_grid)) + 0.3
             total = [0, 0]
             for i in range(n_particles):
-                p_x = int(scale * x(0)[s, i] / dx)
-                p_y = int(scale * x(1)[s, i] / dx)
+                p_x = int(scale * x.get_scalar_field(0)[s, i] / dx)
+                p_y = int(scale * x.get_scalar_field(1)[s, i] / dx)
                 total[0] += p_x
                 total[1] += p_y
                 img[p_x, p_y] = 1
