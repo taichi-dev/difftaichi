@@ -45,7 +45,7 @@ penalty = 1e4
 damping = 0
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.l,
                   max_steps).dense(ti.i,
                                    n_objects).place(x, v, rotation, omega,
@@ -216,7 +216,7 @@ def clear_states():
 
 
 def main():
-    place()
+    allocate_fields()
     for fric in [0, 1]:
         losses = []
         grads = []

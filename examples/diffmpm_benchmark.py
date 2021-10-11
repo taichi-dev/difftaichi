@@ -39,15 +39,23 @@ loss = scalar()
 
 
 def place():
+
     def p(x):
         for i in range(dim):
             ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x.get_scalar_field(i))
 
-    ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
-    # p(x)
-    # p(v)
-    # p(C)
-    # p(F)
+    # This allocate the memory in array-of-structure (AOS) layout
+    # ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
+
+    # Keep structure-of-array (SOA) layout
+    p(x)
+    p(v)
+    for i in range(C.n):
+        for j in range(C.m):
+            ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(C.get_scalar_field(i, j))
+    for i in range(F.n):
+        for j in range(F.m):
+            ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(F.get_scalar_field(i, j))
 
     def pg(x):
         # ti.root.dense(ti.ij, n_grid // 8).dense(ti.ij, 8).place(x)

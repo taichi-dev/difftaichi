@@ -31,7 +31,7 @@ n_objects = 1
 ground_height = 0.1
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.l, max_steps).dense(ti.i, n_objects).place(x, v)
     ti.root.place(loss)
     ti.root.lazy_grad()
@@ -103,7 +103,7 @@ def forward(output=None, visualize=True, dy=0, i=0):
 
 
 def main():
-    place()
+    allocate_fields()
     if len(sys.argv) != 2:
         print('Usage: python3 script.py [use_toi=0/1] [steps=100]')
     global steps

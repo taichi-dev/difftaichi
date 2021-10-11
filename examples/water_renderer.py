@@ -33,7 +33,7 @@ refracted_image = scalar()
 mode = 'refract'
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p)
     ti.root.dense(ti.ij, n_grid).place(rendered)
     ti.root.dense(ti.ij, n_grid).place(target)
@@ -158,7 +158,7 @@ def forward(output=None):
 
 
 def main():
-    place()
+    allocate_fields()
     # initialization
     bot_img = cv2.imread('squirrel.jpg') / 255.0
     for i in range(256):

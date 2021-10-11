@@ -17,7 +17,7 @@ max_timesteps = 1024 * 1024
 dt = 0.001
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.i, max_timesteps).place(x, v)
     ti.root.place(a, damping, loss)
     ti.root.lazy_grad()
@@ -48,7 +48,7 @@ large = False
 if len(sys.argv) > 1:
     large = True
 
-place()
+allocate_fields()
 
 # c = ['r', 'g', 'b', 'y', 'k']
 for i, alpha in enumerate([0, 1, 3, 10]):

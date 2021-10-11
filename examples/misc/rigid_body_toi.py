@@ -32,7 +32,7 @@ n_objects = 1
 ground_height = 0.1
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.l, max_steps).dense(ti.i, n_objects).place(x, v)
     ti.root.place(loss)
     ti.root.lazy_grad()
@@ -109,7 +109,7 @@ def forward(output=None, visualize=True):
 
 
 def main():
-    place()
+    allocate_fields()
     zoom = len(sys.argv) > 1
     for toi in [False, True]:
         losses = []

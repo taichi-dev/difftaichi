@@ -49,7 +49,7 @@ act_strength = 4
 
 
 
-def place():
+def allocate_fields():
     ti.root.dense(ti.ij, (n_actuators, n_sin_waves)).place(weights)
     ti.root.dense(ti.i, n_actuators).place(bias)
 
@@ -343,7 +343,7 @@ def main():
     scene = Scene()
     robot(scene)
     scene.finalize()
-    place()
+    allocate_fields()
 
     for i in range(n_actuators):
         for j in range(n_sin_waves):
