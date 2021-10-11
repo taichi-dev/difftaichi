@@ -81,8 +81,7 @@ def n_input_states():
     return n_sin_waves + 6 * n_objects + 2
 
 
-@ti.layout
-def place():
+def allocate_fields():
     ti.root.dense(ti.l,
                   max_steps).dense(ti.i,
                                    n_objects).place(x, v, rotation,
@@ -417,6 +416,7 @@ def setup_robot(objects, springs, h_id):
     global n_objects, n_springs
     n_objects = len(objects)
     n_springs = len(springs)
+    allocate_fields()
 
     print('n_objects=', n_objects, '   n_springs=', n_springs)
 

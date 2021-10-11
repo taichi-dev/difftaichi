@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import math
 import sys
 
+real = ti.f32
+ti.init(default_fp=real)
+
 x = ti.field(dtype=ti.f32)
 v = ti.field(dtype=ti.f32)
 a = ti.field(dtype=ti.f32)
@@ -14,8 +17,7 @@ max_timesteps = 1024 * 1024
 dt = 0.001
 
 
-@ti.layout
-def place():
+def allocate_fields():
     ti.root.dense(ti.i, max_timesteps).place(x, v)
     ti.root.place(a, damping, loss)
     ti.root.lazy_grad()
@@ -45,6 +47,8 @@ def gradient(alpha, num_steps):
 large = False
 if len(sys.argv) > 1:
     large = True
+
+allocate_fields()
 
 # c = ['r', 'g', 'b', 'y', 'k']
 for i, alpha in enumerate([0, 1, 3, 10]):

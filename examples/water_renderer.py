@@ -33,8 +33,7 @@ refracted_image = scalar()
 mode = 'refract'
 
 
-@ti.layout
-def place():
+def allocate_fields():
     ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p)
     ti.root.dense(ti.ij, n_grid).place(rendered)
     ti.root.dense(ti.ij, n_grid).place(target)
@@ -126,7 +125,7 @@ def compute_height_gradient(t: ti.i32):
 def compute_loss(t: ti.i32):
     for i in range(n_grid):
         for j in range(n_grid):
-            ti.atomic_add(loss, dx * dx * (target[i, j] - p[t, i, j]))**2
+            ti.atomic_add(loss[None], dx * dx * (target[i, j] - p[t, i, j]))**2
 
 
 @ti.kernel
@@ -159,6 +158,7 @@ def forward(output=None):
 
 
 def main():
+    allocate_fields()
     # initialization
     bot_img = cv2.imread('squirrel.jpg') / 255.0
     for i in range(256):

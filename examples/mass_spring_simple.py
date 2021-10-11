@@ -34,8 +34,7 @@ spring_anchor_b = ti.field(ti.i32)
 spring_length = scalar()
 
 
-@ti.layout
-def place():
+def allocate_fields():
     ti.root.dense(ti.l, max_steps).dense(ti.i, n_objects).place(x, v, force)
     ti.root.dense(ti.i, n_springs).place(spring_anchor_a, spring_anchor_b,
                                          spring_length)
@@ -164,6 +163,7 @@ def clear_tensors():
 
 
 def main():
+    allocate_fields()
     x[0, 0] = [0.3, 0.5]
     x[0, 1] = [0.3, 0.4]
     x[0, 2] = [0.4, 0.4]

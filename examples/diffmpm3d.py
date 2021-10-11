@@ -56,8 +56,7 @@ act_strength = 5
 visualize_resolution = 256
 
 
-@ti.layout
-def place():
+def allocate_fields():
     ti.root.dense(ti.ij, (n_actuators, n_sin_waves)).place(weights)
     ti.root.dense(ti.i, n_actuators).place(bias)
 
@@ -390,7 +389,7 @@ def copy_back_and_clear(img: ti.ext_arr()):
 
 
 def robot(scene):
-    block_size = 0.1
+    block_size = 0.1  # change the block_size to 0.05 if run out of GPU memory
     # scene.set_offset(0.1, 0.10, 0.3)
     scene.set_offset(0.1, 0.05, 0.3)
 
@@ -416,6 +415,7 @@ def main():
     robot(scene)
     # scene.add_rect(0.4, 0.4, 0.2, 0.1, 0.3, 0.1, -1, 1)
     scene.finalize()
+    allocate_fields()
 
     for i in range(n_actuators):
         for j in range(n_sin_waves):
