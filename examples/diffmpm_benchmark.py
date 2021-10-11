@@ -42,8 +42,6 @@ def place():
     def p(x):
         for i in range(dim):
             ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x.get_scalar_field(i))
-            # ti.root.dense(ti.l, max_steps).dense(ti.k,
-            #                                      n_particles).place(x.get_scalar_field(i).grad)
 
     ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
     # p(x)

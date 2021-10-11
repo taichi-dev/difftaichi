@@ -1,7 +1,6 @@
 from mass_spring_robot_config import robots
 import random
 import sys
-# from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
 import taichi as ti
 import math

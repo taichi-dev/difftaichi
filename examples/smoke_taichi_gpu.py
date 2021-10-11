@@ -139,8 +139,7 @@ def advect(field: ti.template(), field_out: ti.template(),
 def compute_loss():
     for i in range(n_grid):
         for j in range(n_grid):
-            ti.atomic_add(loss[None], (target[i, j] - smoke[steps - 1, i, j])**2 *
-                          (1 / n_grid**2))
+            loss[None] += (target[i, j] - smoke[steps - 1, i, j])**2 * (1 / n_grid**2)
 
 
 @ti.kernel

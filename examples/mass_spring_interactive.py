@@ -1,7 +1,6 @@
 from mass_spring_robot_config import robots
 import random
 import sys
-# from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
 import taichi as ti
 import math
@@ -341,7 +340,6 @@ def optimize(visualize):
 
         print(time.time() - t, ' 2')
 
-    # losses = gaussian_filter(losses, 10)
     return losses
 
 

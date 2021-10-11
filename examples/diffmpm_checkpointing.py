@@ -203,8 +203,8 @@ for i in range(30):
     grad = init_v.grad[None]
     print('loss=', l, '   grad=', (grad[0], grad[1]))
     learning_rate = 10
-    init_v.get_scalar_field(0)[None] -= learning_rate * grad[0]
-    init_v.get_scalar_field(1)[None] -= learning_rate * grad[1]
+    init_v[None][0] -= learning_rate * grad[0]
+    init_v[None][1] -= learning_rate * grad[1]
 
     # visualize
     for s in range(63, steps, 64):
@@ -212,8 +212,8 @@ for i in range(30):
         img = np.zeros(shape=(scale * n_grid, scale * n_grid)) + 0.3
         total = [0, 0]
         for i in range(n_particles):
-            p_x = int(scale * x.get_scalar_field(0)[s, i] / dx)
-            p_y = int(scale * x.get_scalar_field(1)[s, i] / dx)
+            p_x = int(scale * x[s, i][0] / dx)
+            p_y = int(scale * x[s, i][1] / dx)
             total[0] += p_x
             total[1] += p_y
             img[p_x, p_y] = 1
