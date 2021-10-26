@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.init(default_fp=real)
+ti.init(default_fp=real, debug=True)
 
 max_steps = 1024
 vis_interval = 256
@@ -35,7 +35,7 @@ spring_length = scalar()
 
 
 def allocate_fields():
-    ti.root.dense(ti.l, max_steps).dense(ti.i, n_objects).place(x, v, force)
+    ti.root.dense(ti.i, max_steps).dense(ti.j, n_objects).place(x, v, force)
     ti.root.dense(ti.i, n_springs).place(spring_anchor_a, spring_anchor_b,
                                          spring_length)
     ti.root.place(loss)
