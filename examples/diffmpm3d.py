@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import time
 
 real = ti.f32
-ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
+ti.init(default_fp=real, arch=ti.gpu, flatten_if=True, device_memory_GB=3.5)
 
 dim = 3
 # this will be overwritten
@@ -62,7 +62,7 @@ def allocate_fields():
 
     ti.root.dense(ti.ij, (max_steps, n_actuators)).place(actuation)
     ti.root.dense(ti.i, n_particles).place(actuator_id, particle_type)
-    ti.root.dense(ti.l, max_steps).dense(ti.k, n_particles).place(x, v, C, F)
+    ti.root.dense(ti.k, max_steps).dense(ti.l, n_particles).place(x, v, C, F)
     ti.root.dense(ti.ijk, n_grid).place(grid_v_in, grid_m_in, grid_v_out)
     ti.root.place(loss, x_avg)
     ti.root.dense(ti.ij,

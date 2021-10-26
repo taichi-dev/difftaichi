@@ -82,8 +82,8 @@ def n_input_states():
 
 
 def allocate_fields():
-    ti.root.dense(ti.l,
-                  max_steps).dense(ti.i,
+    ti.root.dense(ti.i,
+                  max_steps).dense(ti.j,
                                    n_objects).place(x, v, rotation,
                                                     rotation_inc, omega, v_inc,
                                                     x_inc, omega_inc)

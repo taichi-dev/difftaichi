@@ -2,7 +2,7 @@ import taichi as ti
 import matplotlib.pyplot as plt
 
 real = ti.f32
-ti.init(arch=ti.cuda, default_fp=real)
+ti.init(arch=ti.cuda, default_fp=real, device_memory_GB=1.5)
 
 dim = 2
 N = 60  # reduce to 30 if run out of GPU memory
