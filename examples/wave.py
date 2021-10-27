@@ -29,8 +29,8 @@ loss = scalar()
 
 
 def allocate_fields():
-    ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p)
-    ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p.grad)
+    ti.root.dense(ti.i, max_steps).dense(ti.jk, n_grid).place(p)
+    ti.root.dense(ti.i, max_steps).dense(ti.jk, n_grid).place(p.grad)
     ti.root.dense(ti.ij, n_grid).place(target)
     ti.root.dense(ti.ij, n_grid).place(target.grad)
     ti.root.dense(ti.ij, n_grid).place(initial)
