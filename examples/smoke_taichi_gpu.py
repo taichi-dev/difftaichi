@@ -5,7 +5,7 @@ import cv2
 import os
 
 real = ti.f32
-ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
+ti.init(default_fp=real, arch=ti.cuda, flatten_if=True, debug=True)
 
 num_iterations = 150
 n_grid = 110
@@ -26,14 +26,14 @@ target = scalar()
 smoke = scalar()
 loss = scalar()
 
-ti.root.dense(ti.l, steps * p_dims).dense(ti.ij, n_grid).place(p)
-ti.root.dense(ti.l, steps * p_dims).dense(ti.ij, n_grid).place(p.grad)
-block = ti.root.dense(ti.l, steps)
+ti.root.dense(ti.i, steps * p_dims).dense(ti.jk, n_grid).place(p)
+ti.root.dense(ti.i, steps * p_dims).dense(ti.jk, n_grid).place(p.grad)
+block = ti.root.dense(ti.i, steps)
 
 
 def soa(x):
     if isinstance(x, ti.ScalarField):
-        block.dense(ti.ij, n_grid).place(x)
+        block.dense(ti.jk, n_grid).place(x)
         # block.dense(ti.ij, n_grid).place(x.grad)
     else:
         for i in range(x.n):

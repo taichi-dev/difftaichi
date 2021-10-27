@@ -34,7 +34,7 @@ mode = 'refract'
 
 
 def allocate_fields():
-    ti.root.dense(ti.l, max_steps).dense(ti.ij, n_grid).place(p)
+    ti.root.dense(ti.i, max_steps).dense(ti.jk, n_grid).place(p)
     ti.root.dense(ti.ij, n_grid).place(rendered)
     ti.root.dense(ti.ij, n_grid).place(target)
     ti.root.dense(ti.ij, n_grid).place(initial)

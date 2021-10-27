@@ -37,7 +37,7 @@ goal = [0.9, 0.75]
 radius = 0.03
 elasticity = 0.8
 
-ti.root.dense(ti.l, max_steps).dense(ti.i, n_balls).place(x, v, x_inc, impulse)
+ti.root.dense(ti.i, max_steps).dense(ti.j, n_balls).place(x, v, x_inc, impulse)
 ti.root.place(init_x, init_v)
 ti.root.place(loss)
 ti.root.lazy_grad()
