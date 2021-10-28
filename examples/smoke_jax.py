@@ -175,7 +175,7 @@ if __name__ == '__main__':
         return distance_from_target_image(final_smoke)
 
     # Specify gradient of objective function using JAX.
-    #objective_with_grad = value_and_grad(objective)
+    objective_with_grad = value_and_grad(objective)
 
     import time
     for i in range(10):
