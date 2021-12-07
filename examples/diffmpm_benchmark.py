@@ -288,9 +288,9 @@ def main():
             img_count += 1
             # cv2.imwrite('MPM{:04d}.png'.format(img_count), img * 255)
             cv2.waitKey(1)
-        ti.kernel_profiler_print()
+        ti.print_kernel_profile_info()
 
-    ti.kernel_profiler_print()
+    ti.print_kernel_profile_info()
     plt.title("Optimization of Initial Velocity")
     plt.ylabel("Loss")
     plt.xlabel("Gradient Descent Iterations")
