@@ -196,7 +196,7 @@ def main():
         print('Iter', opt, ' Loss =', loss[None])
         apply_grad()
         print("Compilation time:",
-              ti.get_runtime().prog.get_total_compilation_time())
+              ti.lang.impl.get_runtime().prog.get_total_compilation_time())
         # ti.profiler_print()
 
     forward("output")

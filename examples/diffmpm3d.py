@@ -408,7 +408,6 @@ def robot(scene):
 
 
 def main():
-    ti.set_gdb_trigger()
     # initialization
     scene = Scene()
     # fish(scene)
