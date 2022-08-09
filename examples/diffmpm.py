@@ -328,7 +328,7 @@ def visualize(s, folder):
     for i in range(n_particles):
         color = 0x111111
         if aid[i] != -1:
-            act = actuation[s - 1, aid[i]]
+            act = actuation[s - 1, int(aid[i])]
             color = ti.rgb_to_hex((0.5 - act, 0.5 - abs(act), 0.5 + act))
         colors[i] = color
     gui.circles(pos=particles, color=colors, radius=1.5)
