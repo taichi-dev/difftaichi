@@ -1,15 +1,16 @@
 import taichi as ti
+import argparse
 import numpy as np
 import math
 import os
 from imageio import imwrite
+import urllib
 
 os.makedirs('output_volume_renderer', exist_ok=True)
 
 real = ti.f32
 ti.init(default_fp=real, arch=ti.cuda)
 
-num_iterations = 100
 res = 512
 density_res = 128
 inv_density_res = 1.0 / density_res
@@ -113,20 +114,25 @@ def clear_density():
         density.grad[i, j, k] = 0
 
 
+@ti.kernel
+def extract_target_image(n: ti.i32, arr: ti.types.ndarray()):
+    for i, j in ti.ndrange(res, res):
+        arr[i, j] = target_images[n, i, j]
+
+
 def create_target_images():
     for view in range(n_views):
         ray_march(target_images, math.pi / n_views * view - math.pi / 2.0,
                   view)
 
         img = np.zeros((res, res), dtype=np.float32)
-        for i in range(res):
-            for j in range(res):
-                img[i, j] = target_images[view, i, j]
+        extract_target_image(view, img)
         img /= np.max(img)
         img = 1 - img
 
-        imwrite("{}/target_{:04d}.png".format("output_volume_renderer", view),
-                100 * img)
+        fn = "{}/target_{:04d}.png".format("output_volume_renderer", view)
+        print("Saving {}".format(fn))
+        imwrite(fn, 100 * img)
 
 
 @ti.func
@@ -161,26 +167,40 @@ def apply_grad():
         density[i, j, k] = ti.max(density[i, j, k], 0)
 
 
+@ti.kernel
+def fill_density(volume: ti.types.ndarray()):
+    res = volume.shape[0]
+    for i, j, k in density:
+        density[i, j, k] = volume[i, res - j - 1, k]
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=100)
+    options = parser.parse_args()
+
     if not os.path.exists('bunny_128.bin'):
-        print(
-            '\n***\nPlease download bunny_128.bin and put in the current working directory. URL: https://github.com/yuanming-hu/taichi_assets/releases/download/llvm8/bunny_128.bin '
-        )
-        exit(0)
+        url = 'https://github.com/yuanming-hu/taichi_assets/releases/download/llvm8/bunny_128.bin'
+        print(':: Downloading {}'.format(url))
+        report = lambda bn, bs, size: print(':: Downloading {:.2f}/{:.2f} MiB ...'.format(bn * bs / 1e6, size / 1e6), end='\r')
+        urllib.request.urlretrieve(url, 'bunny_128.bin', reporthook=report)
+        print(':: Download finished' + ' ' * 10)
+
+    print(':: Loading bunny_128 ...')
     volume = np.fromfile("bunny_128.bin", dtype=np.float32).reshape(
         (density_res, density_res, density_res))
-    for i in range(density_res):
-        for j in range(density_res):
-            for k in range(density_res):
-                density[i, j, k] = volume[i, density_res - j - 1, k]
+
+    print(':: Fill density ...')
+    fill_density(volume)
 
     #create_torus_density()
+    print(':: Create target images ...')
     create_target_images()
     clear_density()
 
-    for iter in range(num_iterations):
+    for iter in range(options.iters):
         clear_images()
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             for view in range(n_views):
                 ray_march(images, math.pi / n_views * view - math.pi / 2.0,
                           view)

@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import time
 import numpy as np
 import cv2
@@ -8,7 +9,6 @@ from imageio import imread, imwrite
 real = ti.f32
 ti.init(default_fp=real)
 
-num_iterations = 150
 n_grid = 110
 dx = 1.0 / n_grid
 num_iterations_gauss_seidel = 6
@@ -77,23 +77,23 @@ def inc_index(index):
 
 @ti.kernel
 def compute_div(t: ti.i32):
-    for y in range(n_grid):
-        for x in range(n_grid):
-            div[t, y, x] = -0.5 * dx * (v_updated[t, inc_index(y), x][0] -
-                                        v_updated[t, dec_index(y), x][0] +
-                                        v_updated[t, y, inc_index(x)][1] -
-                                        v_updated[t, y, dec_index(x)][1])
+    for y, x in ti.ndrange(n_grid, n_grid):
+        div[t, y, x] = -0.5 * dx * (v_updated[t, inc_index(y), x][0] -
+                                    v_updated[t, dec_index(y), x][0] +
+                                    v_updated[t, y, inc_index(x)][1] -
+                                    v_updated[t, y, dec_index(x)][1])
 
 
 @ti.kernel
 def compute_p(t: ti.i32, k: ti.template()):
-    for y in range(n_grid):
-        for x in range(n_grid):
-            a = k + t * num_iterations_gauss_seidel
-            p[a + 1, y,
-              x] = (div[t, y, x] + p[a, dec_index(y), x] +
-                    p[a, inc_index(y), x] + p[a, y, dec_index(x)] +
-                    p[a, y, inc_index(x)]) / 4.0
+    for y, x in ti.ndrange(n_grid, n_grid):
+        a = k + t * num_iterations_gauss_seidel
+        next_p = (div[t, y, x] + \
+                  p[a, dec_index(y), x] +
+                  p[a, inc_index(y), x] +
+                  p[a, y, dec_index(x)] + \
+                  p[a, y, inc_index(x)]) / 4.0
+        p[a + 1, y, x] = next_p
 
 
 @ti.kernel
@@ -141,18 +141,23 @@ def advect(field: ti.template(), field_out: ti.template(),
 
 @ti.kernel
 def compute_loss():
-    for i in range(n_grid):
-        for j in range(n_grid):
-            ti.atomic_add(loss[None], (target[i, j] - smoke[steps - 1, i, j])**2 *
-                          (1 / n_grid**2))
+    for i, j in ti.ndrange(n_grid, n_grid):
+        v = (target[i, j] - smoke[steps - 1, i, j])**2 * (1 / n_grid**2)
+        ti.atomic_add(loss[None], v)
 
 
 @ti.kernel
 def apply_grad():
     # gradient descent
-    for i in range(n_grid):
-        for j in range(n_grid):
-            v[0, i, j] -= learning_rate * v.grad[0, i, j]
+    for i, j in ti.ndrange(n_grid, n_grid):
+        v[0, i, j] -= learning_rate * v.grad[0, i, j]
+
+
+@ti.ad.no_grad
+@ti.kernel
+def copy_smoke(t: ti.i32, arr: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        arr[i, j] = smoke[t, i, j]
 
 
 def forward(output=None):
@@ -170,9 +175,7 @@ def forward(output=None):
         if output:
             os.makedirs(output, exist_ok=True)
             smoke_ = np.zeros(shape=(n_grid, n_grid), dtype=np.float32)
-            for i in range(n_grid):
-                for j in range(n_grid):
-                    smoke_[i, j] = smoke[t, i, j]
+            copy_smoke(t, smoke_)
             cv2.imshow('smoke', smoke_)
             cv2.waitKey(1)
             cv2.imwrite("{}/{:04d}.png".format(output, t), 255 * smoke_)
@@ -181,6 +184,10 @@ def forward(output=None):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=150)
+    options = parser.parse_args()
+
     print("Loading initial and target states...")
     initial_smoke_img = imread("init_smoke.png")[:, :, 0] / 255.0
     target_img = imread("peace.png")[::2, ::2, 3] / 255.0
@@ -190,9 +197,9 @@ def main():
             target[i, j] = target_img[i, j]
             smoke[0, i, j] = initial_smoke_img[i, j]
 
-    for opt in range(num_iterations):
+    for opt in range(options.iters):
         t = time.time()
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             output = "test" if opt % 10 == 9 else None
             forward(output)
         print('total time', (time.time() - t) * 1000, 'ms')

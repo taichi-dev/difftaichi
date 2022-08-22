@@ -1,4 +1,5 @@
 from mass_spring_robot_config import robots
+import argparse
 import random
 import sys
 import matplotlib.pyplot as plt
@@ -314,10 +315,10 @@ def optimize(toi, visualize):
 
     losses = []
     # forward('initial{}'.format(robot_id), visualize=visualize)
-    for iter in range(100):
+    for iter in range(options.iters):
         clear()
-        # with ti.Tape(loss) automatically clears all gradients
-        with ti.Tape(loss):
+        # with ti.ad.Tape(loss) automatically clears all gradients
+        with ti.ad.Tape(loss):
             forward(visualize=visualize)
 
         print('Iter=', iter, 'Loss=', loss[None])
@@ -351,23 +352,17 @@ def optimize(toi, visualize):
 
     return losses
 
-
-robot_id = 0
-if len(sys.argv) != 3:
-    print(
-        "Usage: python3 mass_spring.py [robot_id=0, 1, 2, ...] [task=train/plot]"
-    )
-    exit(-1)
-else:
-    robot_id = int(sys.argv[1])
-    task = sys.argv[2]
-
+parser = argparse.ArgumentParser()
+parser.add_argument('robot_id', type=int, help='[robot_id=0, 1, 2, ...]')
+parser.add_argument('task', type=str, help='train/plot')
+parser.add_argument('--iters', type=int, default=100)
+options = parser.parse_args()
 
 def main():
 
-    setup_robot(*robots[robot_id]())
+    setup_robot(*robots[options.robot_id]())
 
-    if task == 'plot':
+    if options.task == 'plot':
         ret = {}
         for toi in [False, True]:
             ret[toi] = []
@@ -383,7 +378,7 @@ def main():
     else:
         optimize(toi=True, visualize=True)
         clear()
-        forward('final{}'.format(robot_id))
+        forward('final{}'.format(options.robot_id))
 
 
 if __name__ == '__main__':

@@ -190,7 +190,7 @@ def optimize():
         output = None
         if vis:
             output = 'iter{:05d}'.format(iter)
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             forward(visualize=vis, output=output)
         losses.append(loss[None])
         # print(iter, "loss", loss[None])

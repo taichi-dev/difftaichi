@@ -1,5 +1,8 @@
-taichi>=0.8.1
+taichi>=1.1.0
 matplotlib
 numpy
 opencv-python
 scipy
+imageio
+torch
+torchvision

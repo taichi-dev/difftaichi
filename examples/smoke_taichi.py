@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import os
 import numpy as np
 import cv2
@@ -6,7 +7,6 @@ import cv2
 real = ti.f32
 ti.init(default_fp=real, arch=ti.cuda, flatten_if=True)
 
-num_iterations = 240
 n_grid = 128
 dx = 1.0 / n_grid
 num_iterations_gauss_seidel = 10
@@ -140,6 +140,13 @@ def apply_grad():
             v[0, i, j] -= learning_rate * v.grad[0, i, j]
 
 
+@ti.ad.no_grad
+@ti.kernel
+def copy_smoke(t: ti.i32, arr: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        arr[i, j] = smoke[t, i, j]
+
+
 def forward(output=None):
     for t in range(1, steps):
         advect(v, v_updated, -1, t)
@@ -153,9 +160,7 @@ def forward(output=None):
 
         if output:
             smoke_ = np.zeros(shape=(n_grid, n_grid), dtype=np.float32)
-            for i in range(n_grid):
-                for j in range(n_grid):
-                    smoke_[i, j] = smoke[t, i, j]
+            copy_smoke(t, smoke_)
             cv2.imshow('smoke', smoke_)
             cv2.waitKey(1)
             os.makedirs(output, exist_ok=True)
@@ -163,27 +168,37 @@ def forward(output=None):
     compute_loss()
 
 
+@ti.kernel
+def init(target_img: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        target[i, j] = target_img[i, j]
+        smoke[0, i, j] = (i // 16 + j // 16) % 2
+
+@ti.ad.no_grad
+@ti.kernel
+def extract_velocity_field(arr: ti.types.ndarray()):
+    s = 0.2
+    b = 0.5
+    for i, j in ti.ndrange(n_grid, n_grid):
+        arr[i, j, 0] = v[0, i, j][0] * s + b
+        arr[i, j, 1] = v[0, i, j][1] * s + b
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=240)
+    options = parser.parse_args()
+
     target_img = cv2.resize(cv2.imread('taichi.png'),
                             (n_grid, n_grid))[:, :, 0] / 255.0
 
-    for i in range(n_grid):
-        for j in range(n_grid):
-            target[i, j] = target_img[i, j]
-            smoke[0, i, j] = (i // 16 + j // 16) % 2
-
-    for opt in range(num_iterations):
-        with ti.Tape(loss):
+    init(target_img)
+    for opt in range(options.iters):
+        with ti.ad.Tape(loss):
             output = "outputs/opt{:03d}".format(opt) if opt % 10 == 0 else None
             forward(output)
-            velocity_field = np.ones(shape=(n_grid, n_grid, 3),
-                                     dtype=np.float32)
-            for i in range(n_grid):
-                for j in range(n_grid):
-                    s = 0.2
-                    b = 0.5
-                    velocity_field[i, j, 0] = v[0, i, j][0] * s + b
-                    velocity_field[i, j, 1] = v[0, i, j][1] * s + b
+            velocity_field = np.ones(shape=(n_grid, n_grid, 3), dtype=np.float32)
+            extract_velocity_field(velocity_field)
             cv2.imshow('velocity', velocity_field)
             cv2.waitKey(1)
 

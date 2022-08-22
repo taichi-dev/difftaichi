@@ -228,25 +228,27 @@ def benchmark():
     ti.print_kernel_profile_info()
 
 
-def main():
-    place()
-    # initialization
+@ti.kernel
+def init():
     init_v[None] = [0, 0]
 
     for i in range(n_particles):
         F[0, i] = [[1, 0], [0, 1]]
 
-    for i in range(N):
-        for j in range(N):
-            x[0, i * N + j] = [dx * (i * 0.5 + 10), dx * (j * 0.5 + 25)]
+    for i, j in ti.ndrange(N, N):
+        x[0, i * N + j] = [dx * (i * 0.5 + 10), dx * (j * 0.5 + 25)]
 
+
+def main():
+    place()
+    init()
     set_v()
     benchmark()
 
     losses = []
     img_count = 0
     for i in range(30):
-        with ti.Tape(loss=loss):
+        with ti.ad.Tape(loss=loss):
             set_v()
             for s in range(steps - 1):
                 substep(s)

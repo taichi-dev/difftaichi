@@ -425,10 +425,12 @@ def main():
     scene.finalize()
     allocate_fields()
 
+    print(':: rand')
     for i in range(n_actuators):
         for j in range(n_sin_waves):
             weights[i, j] = np.random.randn() * 0.01
 
+    print(':: particles')
     for i in range(scene.n_particles):
         x[0, i] = scene.x[i]
         F[0, i] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]

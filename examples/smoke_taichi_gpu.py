@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import time
 import numpy as np
 import cv2
@@ -7,7 +8,6 @@ import os
 real = ti.f32
 ti.init(default_fp=real, arch=ti.cuda, flatten_if=True, debug=True)
 
-num_iterations = 150
 n_grid = 110
 dx = 1.0 / n_grid
 num_iterations_gauss_seidel = 6
@@ -137,17 +137,21 @@ def advect(field: ti.template(), field_out: ti.template(),
 
 @ti.kernel
 def compute_loss():
-    for i in range(n_grid):
-        for j in range(n_grid):
-            loss[None] += (target[i, j] - smoke[steps - 1, i, j])**2 * (1 / n_grid**2)
+    for i, j in ti.ndrange(n_grid, n_grid):
+        loss[None] += (target[i, j] - smoke[steps - 1, i, j])**2 * (1 / n_grid**2)
 
 
 @ti.kernel
 def apply_grad():
     # gradient descent
-    for i in range(n_grid):
-        for j in range(n_grid):
-            v[0, i, j] -= learning_rate * v.grad[0, i, j]
+    for i, j in ti.ndrange(n_grid, n_grid):
+        v[0, i, j] -= learning_rate * v.grad[0, i, j]
+
+
+@ti.kernel
+def copy_smoke(t: ti.i32, arr: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        arr[i, j] = smoke[t, i, j]
 
 
 def forward(output=None):
@@ -165,9 +169,7 @@ def forward(output=None):
         if output:
             os.makedirs(output, exist_ok=True)
             smoke_ = np.zeros(shape=(n_grid, n_grid), dtype=np.float32)
-            for i in range(n_grid):
-                for j in range(n_grid):
-                    smoke_[i, j] = smoke[t, i, j]
+            copy_smoke(t, smoke_)
             cv2.imshow('smoke', smoke_)
             cv2.waitKey(1)
             cv2.imwrite("{}/{:04d}.png".format(output, t), 255 * smoke_)
@@ -176,6 +178,10 @@ def forward(output=None):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=150)
+    options = parser.parse_args()
+
     print("Loading initial and target states...")
     initial_smoke_img = cv2.imread("init_smoke.png")[:, :, 0] / 255.0
     target_img = cv2.resize(cv2.imread('taichi.png'),
@@ -186,9 +192,9 @@ def main():
             target[i, j] = target_img[i, j]
             smoke[0, i, j] = initial_smoke_img[i, j]
 
-    for opt in range(num_iterations):
+    for opt in range(options.iters):
         t = time.time()
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             output = "test" if opt % 10 == -1 else None
             forward(output)
         print('total time', (time.time() - t) * 1000, 'ms')

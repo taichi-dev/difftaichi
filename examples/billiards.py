@@ -161,7 +161,7 @@ def optimize():
     for iter in range(200):
         clear()
 
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             if iter % 20 == 19:
                 output = 'iter{:04d}'.format(iter)
             else:

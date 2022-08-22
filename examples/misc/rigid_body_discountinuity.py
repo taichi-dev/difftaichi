@@ -232,7 +232,7 @@ def main():
             # for iter in range(50):
             clear_states()
 
-            with ti.Tape(loss):
+            with ti.ad.Tape(loss):
                 forward(visualize=True)
 
             print('Iter=', i, 'Loss=', loss[None])

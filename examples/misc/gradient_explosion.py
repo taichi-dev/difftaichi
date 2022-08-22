@@ -37,7 +37,7 @@ def compute_loss(t: ti.i32):
 def gradient(alpha, num_steps):
     damping[None] = math.exp(-dt * alpha)
     a[None] = 1
-    with ti.Tape(loss):
+    with ti.ad.Tape(loss):
         for i in range(1, num_steps):
             advance(i)
         compute_loss(num_steps - 1)

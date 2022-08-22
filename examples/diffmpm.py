@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import os
 import math
 import numpy as np
@@ -325,10 +326,11 @@ def visualize(s, folder):
     aid = actuator_id.to_numpy()
     colors = np.empty(shape=n_particles, dtype=np.uint32)
     particles = x.to_numpy()[s]
+    actuation_ = actuation.to_numpy()
     for i in range(n_particles):
         color = 0x111111
         if aid[i] != -1:
-            act = actuation[s - 1, int(aid[i])]
+            act = actuation_[s - 1, int(aid[i])]
             color = ti.rgb_to_hex((0.5 - act, 0.5 - abs(act), 0.5 + act))
         colors[i] = color
     gui.circles(pos=particles, color=colors, radius=1.5)
@@ -339,6 +341,10 @@ def visualize(s, folder):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=100)
+    options = parser.parse_args()
+
     # initialization
     scene = Scene()
     robot(scene)
@@ -356,8 +362,8 @@ def main():
         particle_type[i] = scene.particle_type[i]
 
     losses = []
-    for iter in range(100):
-        with ti.Tape(loss):
+    for iter in range(options.iters):
+        with ti.ad.Tape(loss):
             forward()
         l = loss[None]
         losses.append(l)
