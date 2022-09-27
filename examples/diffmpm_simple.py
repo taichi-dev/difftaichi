@@ -171,7 +171,7 @@ for i in range(30):
     grid_m_in.fill(0)
 
     x_avg[None] = [0, 0]
-    with ti.Tape(loss=loss):
+    with ti.ad.Tape(loss=loss):
         set_v()
         for s in range(steps - 1):
             substep(s)

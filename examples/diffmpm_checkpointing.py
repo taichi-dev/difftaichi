@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -174,22 +175,28 @@ def substep_grad(s):
     p2g.grad(s)
 
 
-# initialization
-init_v[None] = [0, 0]
+@ti.kernel
+def init():
+    init_v[None] = [0, 0]
 
-for i in range(n_particles):
-    F[0, i] = [[1, 0], [0, 1]]
+    for i in range(n_particles):
+        F[0, i] = [[1, 0], [0, 1]]
 
-for i in range(N):
-    for j in range(N):
+    for i, j in ti.ndrange(N, N):
         x[0, i * N + j] = [dx * (i * 0.5 + 10), dx * (j * 0.5 + 25)]
 
+init()
 set_v()
 
 losses = []
 img_count = 0
-for i in range(30):
-    with ti.Tape(loss=loss):
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--iters', type=int, default=30)
+options = parser.parse_args()
+
+for i in range(options.iters):
+    with ti.ad.Tape(loss=loss):
         set_v()
         for s in range(steps - 1):
             substep(s)
@@ -206,14 +213,18 @@ for i in range(30):
     init_v[None][0] -= learning_rate * grad[0]
     init_v[None][1] -= learning_rate * grad[1]
 
+    if i % 3 != 0:
+        continue
+
     # visualize
+    x_ = x.to_numpy()
     for s in range(63, steps, 64):
         scale = 4
         img = np.zeros(shape=(scale * n_grid, scale * n_grid)) + 0.3
         total = [0, 0]
         for i in range(n_particles):
-            p_x = int(scale * x[s, i][0] / dx)
-            p_y = int(scale * x[s, i][1] / dx)
+            p_x = int(scale * x_[s, i][0] / dx)
+            p_y = int(scale * x_[s, i][1] / dx)
             total[0] += p_x
             total[1] += p_y
             img[p_x, p_y] = 1

@@ -463,7 +463,7 @@ def optimize(toi=True, visualize=True):
     for iter in range(20):
         clear_states()
 
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             forward(visualize=visualize)
 
         print('Iter=', iter, 'Loss=', loss[None])

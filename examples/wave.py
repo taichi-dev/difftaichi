@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import math
 import numpy as np
 import cv2
@@ -85,6 +86,12 @@ def apply_grad():
     for i, j in initial.grad:
         initial[i, j] -= learning_rate * initial.grad[i, j]
 
+@ti.ad.no_grad
+@ti.kernel
+def get_image(img: ti.types.ndarray(), t: ti.i32):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        img[i, j] = p[t, i, j] * amplify + 0.5
+
 
 def forward(output=None):
     steps_mul = 1
@@ -98,9 +105,7 @@ def forward(output=None):
         fdtd(t)
         if (t + 1) % interval == 0:
             img = np.zeros(shape=(n_grid, n_grid), dtype=np.float32)
-            for i in range(n_grid):
-                for j in range(n_grid):
-                    img[i, j] = p[t, i, j] * amplify + 0.5
+            get_image(img, t)
             img = cv2.resize(img, fx=4, fy=4, dsize=None)
             cv2.imshow('img', img)
             cv2.waitKey(1)
@@ -110,7 +115,17 @@ def forward(output=None):
     compute_loss(steps - 1)
 
 
+@ti.kernel
+def fill_target(img: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_grid, n_grid):
+        target[i, j] = float(img[i, j])
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=200)
+    options = parser.parse_args()
+
     # initialization
     target_img = cv2.imread('taichi.png')[:, :, 0] / 255.0
     target_img -= target_img.mean()
@@ -118,9 +133,7 @@ def main():
     cv2.imshow('target', target_img * amplify + 0.5)
     allocate_fields()
     # print(target_img.min(), target_img.max())
-    for i in range(n_grid):
-        for j in range(n_grid):
-            target[i, j] = float(target_img[i, j])
+    fill_target(target_img)
 
     if False:
         # this is not too exciting...
@@ -128,8 +141,8 @@ def main():
         forward('center')
         initial[n_grid // 2, n_grid // 2] = 0
 
-    for opt in range(200):
-        with ti.Tape(loss):
+    for opt in range(options.iters):
+        with ti.ad.Tape(loss):
             output = None
             if opt % 20 == 19:
                 output = 'wave/iter{:03d}/'.format(opt)

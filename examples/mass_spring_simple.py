@@ -180,7 +180,7 @@ def main():
     for iter in range(25):
         clear_tensors()
 
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             forward()
 
         print('Iter=', iter, 'Loss=', loss[None])

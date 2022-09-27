@@ -1,4 +1,5 @@
 from mass_spring_robot_config import robots
+import argparse
 import random
 import sys
 import matplotlib.pyplot as plt
@@ -300,12 +301,12 @@ def optimize(visualize):
 
     losses = []
     # forward('initial{}'.format(robot_id), visualize=visualize)
-    for iter in range(200):
+    for iter in range(options.iters):
         clear()
 
         import time
         t = time.time()
-        with ti.Tape(loss):
+        with ti.ad.Tape(loss):
             forward(visualize=iter % 10 == 0)
         print(time.time() - t, ' 1')
 
@@ -343,16 +344,14 @@ def optimize(visualize):
     return losses
 
 
-robot_id = 0
-if len(sys.argv) != 2:
-    print("Usage: python3 mass_spring_interactive.py [robot_id=0, 1, 2, ...]")
-    exit(0)
-else:
-    robot_id = int(sys.argv[1])
+parser = argparse.ArgumentParser()
+parser.add_argument('robot_id', type=int, help='[robot_id=0, 1, 2, ...]')
+parser.add_argument('--iters', type=int, default=200)
+options = parser.parse_args()
 
 if __name__ == '__main__':
-    setup_robot(*robots[robot_id]())
+    setup_robot(*robots[options.robot_id]())
 
     optimize(visualize=False)
     clear()
-    forward('final{}'.format(robot_id))
+    forward('final{}'.format(options.robot_id))

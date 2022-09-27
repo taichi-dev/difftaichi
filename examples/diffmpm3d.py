@@ -1,4 +1,5 @@
 import taichi as ti
+import argparse
 import os
 import math
 import numpy as np
@@ -71,12 +72,18 @@ def allocate_fields():
     ti.root.lazy_grad()
 
 
+@ti.func
 def zero_vec():
     return [0.0, 0.0, 0.0]
 
 
+@ti.func
 def zero_matrix():
-    return [zero_vec(), zero_vec(), zero_vec()]
+    return [
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+    ]
 
 
 @ti.kernel
@@ -407,7 +414,32 @@ def robot(scene):
                        block_size * 0.7, block_size, -1, 1)
 
 
+@ti.kernel
+def learn(learning_rate: ti.template()):
+    for i, j in ti.ndrange(n_actuators, n_sin_waves):
+        weights[i, j] -= learning_rate * weights.grad[i, j]
+
+    for i in range(n_actuators):
+        bias[i] -= learning_rate * bias.grad[i]
+
+
+@ti.kernel
+def init(x_: ti.types.ndarray(element_dim=1), actuator_id: ti.types.ndarray(), particle_type: ti.types.ndarray()):
+    for i, j in ti.ndrange(n_actuators, n_sin_waves):
+        weights[i, j] = ti.randn() * 0.01
+
+    for i in range(n_particles):
+        x[0, i] = x_[i]
+        F[0, i] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        actuator_id[i] = actuator_id[i]
+        particle_type[i] = particle_type[i]
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iters', type=int, default=100)
+    options = parser.parse_args()
+
     # initialization
     scene = Scene()
     # fish(scene)
@@ -416,20 +448,14 @@ def main():
     scene.finalize()
     allocate_fields()
 
-    for i in range(n_actuators):
-        for j in range(n_sin_waves):
-            weights[i, j] = np.random.randn() * 0.01
-
-    for i in range(scene.n_particles):
-        x[0, i] = scene.x[i]
-        F[0, i] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        actuator_id[i] = scene.actuator_id[i]
-        particle_type[i] = scene.particle_type[i]
+    init(np.array(scene.x, dtype=np.float32),
+         np.array(scene.actuator_id, dtype=np.int32),
+         np.array(scene.particle_type, dtype=np.int32))
 
     losses = []
-    for iter in range(100):
+    for iter in range(options.iters):
         t = time.time()
-        ti.clear_all_gradients()
+        ti.ad.clear_all_gradients()
         l = forward()
         losses.append(l)
         loss.grad[None] = 1
@@ -437,11 +463,7 @@ def main():
         per_iter_time = time.time() - t
         print('i=', iter, 'loss=', l, F' per iter {per_iter_time:.2f}s')
         learning_rate = 30
-
-        for i in range(n_actuators):
-            for j in range(n_sin_waves):
-                weights[i, j] -= learning_rate * weights.grad[i, j]
-            bias[i] -= learning_rate * bias.grad[i]
+        learn(learning_rate)
 
         if iter % 20 == 19:
             print('Writing particle data to disk...')

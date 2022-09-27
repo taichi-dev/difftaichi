@@ -156,15 +156,17 @@ def forward(output=None):
     compute_height_gradient(steps - 1)
     render_refract()
 
+@ti.kernel
+def fill_bottom_image(img: ti.types.ndarray()):
+    for i, j, k in ti.ndrange(256, 256, 3):
+        bottom_image[i, j, k] = img[i, j, k]
+
 
 def main():
     allocate_fields()
     # initialization
-    bot_img = cv2.imread('squirrel.jpg') / 255.0
-    for i in range(256):
-        for j in range(256):
-            for k in range(3):
-                bottom_image[i, j, k] = bot_img[i, j, k]
+    bot_img = (cv2.imread('squirrel.jpg') / 255.0).astype(np.float32)
+    fill_bottom_image(bot_img)
 
     initial[n_grid // 2, n_grid // 2] = 1
     # forward('water_renderer/initial')
@@ -172,25 +174,30 @@ def main():
 
     from adversarial import vgg_grad, predict
 
-    for opt in range(10):
-        with ti.Tape(loss):
-            forward()
-
-            feed_to_vgg = np.zeros((224, 224, 3), dtype=np.float32)
+    @ti.kernel
+    def img2np(img: ti.types.ndarray()):
+        for i, j, k in ti.ndrange(224, 224, 3):
             # Note: do a transpose here
-            for i in range(224):
-                for j in range(224):
-                    for k in range(3):
-                        feed_to_vgg[i, j, k] = refracted_image[i + 16, j + 16,
-                                                               2 - k]
+            img[i, j, k] = refracted_image[i + 16, j + 16, 2 - k]
 
-            predict(feed_to_vgg)
-            grad = vgg_grad(feed_to_vgg)
-            for i in range(224):
-                for j in range(224):
-                    for k in range(3):
-                        refracted_image.grad[i + 16, j + 16,
-                                             k] = grad[i, j, 2 - k] * 0.001
+    @ti.kernel
+    def copy_grad(grad: ti.types.ndarray()):
+        for i, j, k in ti.ndrange(224, 224, 3):
+            refracted_image.grad[i + 16, j + 16, 2 - k] = grad[i, j, k] * 0.001
+
+    feed_to_vgg = np.zeros((224, 224, 3), dtype=np.float32)
+
+    @ti.ad.no_grad
+    def vgg_predict():
+        img2np(feed_to_vgg)
+        predict(feed_to_vgg)
+        grad = vgg_grad(feed_to_vgg)
+        copy_grad(grad)
+
+    for opt in range(10):
+        with ti.ad.Tape(loss):
+            forward()
+            vgg_predict()
 
         print('Iter', opt)
 

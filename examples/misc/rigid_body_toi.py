@@ -126,7 +126,7 @@ def main():
             x[0, 0] = [0.7, 0.5 + dy]
             v[0, 0] = [-1, -2]
 
-            with ti.Tape(loss):
+            with ti.ad.Tape(loss):
                 forward(visualize=False)
 
             print('dy=', dy, 'Loss=', loss[None])
