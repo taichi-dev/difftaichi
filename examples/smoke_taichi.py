@@ -35,11 +35,9 @@ ti.root.lazy_grad()
 # Integer modulo operator for positive values of n
 @ti.func
 def imod(n, divisor):
-    ret = 0
-    if n > 0:
-        ret = n - divisor * (n // divisor)
-    else:
-        ret = divisor + n - divisor * (-n // divisor)
+    ret = n % divisor
+    if ret < 0:
+        ret += divisor
     return ret
 
 
@@ -111,11 +109,9 @@ def advect(field: ti.template(), field_out: ti.template(),
             # Wrap around edges
             # TODO: implement mod (%) operator
             left_ix = imod(left_ix, n_grid)
-            right_ix = left_ix + 1
-            right_ix = imod(right_ix, n_grid)
+            right_ix = inc_index(left_ix)
             top_ix = imod(top_ix, n_grid)
-            bot_ix = top_ix + 1
-            bot_ix = imod(bot_ix, n_grid)
+            bot_ix = inc_index(top_ix)
 
             # Linearly-weighted sum of the 4 surrounding cells
             field_out[t, y, x] = (1 - rw) * (

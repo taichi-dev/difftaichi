@@ -53,17 +53,21 @@ dt = (math.sqrt(alpha * alpha + dx * dx / 3) - alpha) / c
 learning_rate = 0.1
 
 
-# TODO: there may by out-of-bound accesses here
+@ti.func
+def get_p(t, i, j):
+    return p[t, i, j] if 0 <= i < n_grid and 0 <= j < n_grid else 0
+
+
 @ti.func
 def laplacian(t, i, j):
-    return inv_dx2 * (-4 * p[t, i, j] + p[t, i, j - 1] + p[t, i, j + 1] +
-                      p[t, i + 1, j] + p[t, i - 1, j])
+    return inv_dx2 * (-4 * get_p(t, i, j) + get_p(t, i, j - 1) + get_p(t, i, j + 1) +
+                      get_p(t, i + 1, j) + get_p(t, i - 1, j))
 
 
 @ti.func
 def gradient(t, i, j):
     return 0.5 * inv_dx * ti.Vector(
-        [p[t, i + 1, j] - p[t, i - 1, j], p[t, i, j + 1] - p[t, i, j - 1]])
+        [get_p(t, i + 1, j) - get_p(t, i - 1, j), get_p(t, i, j + 1) - get_p(t, i, j - 1)])
 
 
 @ti.kernel
@@ -99,8 +103,8 @@ def render_refract():
         scale = 2.0
         sample_x = i - grad[0] * scale
         sample_y = j - grad[1] * scale
-        sample_x = ti.min(n_grid - 1, ti.max(0, sample_x))
-        sample_y = ti.min(n_grid - 1, ti.max(0, sample_y))
+        sample_x = ti.min(n_grid - 2, ti.max(0, sample_x))
+        sample_y = ti.min(n_grid - 2, ti.max(0, sample_y))
         sample_xi = ti.cast(ti.floor(sample_x), ti.i32)
         sample_yi = ti.cast(ti.floor(sample_y), ti.i32)
 

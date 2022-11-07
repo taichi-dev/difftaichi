@@ -26,7 +26,7 @@ x = vec()
 v = vec()
 v_inc = vec()
 
-head_id = 10
+head_id = 0
 goal = vec()
 
 n_objects = 0
@@ -268,9 +268,10 @@ def clear():
 
 
 def setup_robot(objects, springs):
-    global n_objects, n_springs
+    global n_objects, n_springs, head_id
     n_objects = len(objects)
     n_springs = len(springs)
+    head_id = 4 if n_objects < 10 else 10
     allocate_fields()
 
     print('n_objects=', n_objects, '   n_springs=', n_springs)

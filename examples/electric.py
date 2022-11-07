@@ -80,7 +80,7 @@ def nn1(t: ti.i32):
         act += (goal_v[t][0] - 0.5) * weight1[6, i]
         act += (goal_v[t][1] - 0.5) * weight1[7, i]
         act += bias1[i]
-        hidden[t, i] = ti.tanh(act)
+        hidden[i, t] = ti.tanh(act)
 
 
 @ti.kernel
@@ -88,9 +88,9 @@ def nn2(t: ti.i32):
     for i in range(n_gravitation):
         act = 0.0
         for j in ti.static(range(n_hidden)):
-            act += hidden[t, j] * weight2[j, i]
+            act += hidden[j, t] * weight2[j, i]
         act += bias2[i]
-        gravitation[t, i] = ti.tanh(act)
+        gravitation[i, t] = ti.tanh(act)
 
 
 @ti.kernel
@@ -100,7 +100,7 @@ def advance(t: ti.i32):
         for i in ti.static(range(n_gravitation)):  # instead of this one
             r = x[t - 1] - ti.Vector(gravitation_position[i])
             len_r = ti.max(r.norm(), 1e-1)
-            gravitational_force += K * gravitation[t, i] / (len_r * len_r *
+            gravitational_force += K * gravitation[i, t] / (len_r * len_r *
                                                             len_r) * r
         v[t] = v[t - 1] * math.exp(-dt * damping) + dt * gravitational_force
         x[t] = x[t - 1] + dt * v[t]
@@ -130,7 +130,7 @@ def forward(visualize=False, output=None):
             gui.clear()
 
             for i in range(n_gravitation):
-                r = (gravitation[t, i] + 1) * 30
+                r = (gravitation[i, t] + 1) * 30
                 gui.circle(gravitation_position[i], 0xccaa44, r)
 
             gui.circle((x[t][0], x[t][1]), 0xF20530, 30)
