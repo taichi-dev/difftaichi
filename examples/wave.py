@@ -48,11 +48,15 @@ dt = (math.sqrt(alpha * alpha + dx * dx / 3) - alpha) / c
 learning_rate = 1
 
 
-# TODO: there may by out-of-bound accesses here
+@ti.func
+def get_p(t, i, j):
+    return p[t, i, j] if 0 <= i < n_grid and 0 <= j < n_grid else 0
+
+
 @ti.func
 def laplacian(t, i, j):
-    return inv_dx2 * (-4 * p[t, i, j] + p[t, i, j - 1] + p[t, i, j + 1] +
-                      p[t, i + 1, j] + p[t, i - 1, j])
+    return inv_dx2 * (-4 * get_p(t, i, j) + get_p(t, i, j - 1) + get_p(t, i, j + 1) +
+                      get_p(t, i + 1, j) + get_p(t, i - 1, j))
 
 
 @ti.kernel
