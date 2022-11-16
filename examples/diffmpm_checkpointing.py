@@ -94,7 +94,7 @@ def p2g(f: ti.i32):
             for j in ti.static(range(3)):
                 offset = ti.Vector([i, j])
                 dpos = (ti.cast(ti.Vector([i, j]), real) - fx) * dx
-                weight = w[i](0) * w[j](1)
+                weight = w[i][0] * w[j][1]
                 grid_v_in[base + offset] += weight * (p_mass * v[f, p] +
                                                       affine @ dpos)
                 grid_m_in[base + offset] += weight * p_mass
@@ -134,8 +134,8 @@ def g2p(f: ti.i32):
         for i in ti.static(range(3)):
             for j in ti.static(range(3)):
                 dpos = ti.cast(ti.Vector([i, j]), real) - fx
-                g_v = grid_v_out[base(0) + i, base(1) + j]
-                weight = w[i](0) * w[j](1)
+                g_v = grid_v_out[base[0] + i, base[1] + j]
+                weight = w[i][0] * w[j][1]
                 new_v += weight * g_v
                 new_C += 4 * weight * g_v.outer_product(dpos) * inv_dx
 
@@ -153,7 +153,7 @@ def compute_x_avg():
 @ti.kernel
 def compute_loss():
     dist = (x_avg[None] - ti.Vector(target))**2
-    loss[None] = 0.5 * (dist(0) + dist(1))
+    loss[None] = 0.5 * (dist[0] + dist[1])
 
 
 @ti.ad.grad_replaced
