@@ -56,7 +56,7 @@ def collide_pair(t, i, j):
         dist_norm = dist.norm()
         rela_v = v[t, i] - v[t, j]
         if dist_norm < 2 * radius:
-            dir = ti.Vector.normalized(dist)
+            dir = ti.Vector.normalized(dist, 1e-6)
             projected_v = dir.dot(rela_v)
 
             if projected_v < 0:
