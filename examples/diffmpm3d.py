@@ -156,9 +156,8 @@ def p2g(f: ti.i32):
                     offset = ti.Vector([i, j, k])
                     dpos = (ti.cast(ti.Vector([i, j, k]), real) - fx) * dx
                     weight = w[i][0] * w[j][1] * w[k][2]
-                    grid_v_in[base + offset].atomic_add(
-                        weight * (mass * v[f, p] + affine @ dpos))
-                    grid_m_in[base + offset].atomic_add(weight * mass)
+                    ti.atomic_add(grid_v_in[base + offset], weight * (mass * v[f, p] + affine @ dpos))
+                    ti.atomic_add(grid_m_in[base + offset], weight * mass)
 
 
 bound = 3
@@ -260,7 +259,7 @@ def compute_x_avg():
         contrib = 0.0
         if particle_type[i] == 1:
             contrib = 1.0 / n_solid_particles
-        x_avg[None].atomic_add(contrib * x[steps - 1, i])
+        ti.atomic_add(x_avg[None], contrib * x[steps - 1, i])
 
 
 @ti.kernel
@@ -386,7 +385,7 @@ res = [visualize_resolution, visualize_resolution]
 
 
 @ti.kernel
-def copy_back_and_clear(img: ti.ext_arr()):
+def copy_back_and_clear(img: ti.types.ndarray()):
     for i in range(res[0]):
         for j in range(res[1]):
             coord = ((res[1] - 1 - j) * res[0] + i) * 3
@@ -424,15 +423,15 @@ def learn(learning_rate: ti.template()):
 
 
 @ti.kernel
-def init(x_: ti.types.ndarray(element_dim=1), actuator_id: ti.types.ndarray(), particle_type: ti.types.ndarray()):
+def init(x_: ti.types.ndarray(element_dim=1), actuator_id_arr: ti.types.ndarray(), particle_type_arr: ti.types.ndarray()):
     for i, j in ti.ndrange(n_actuators, n_sin_waves):
         weights[i, j] = ti.randn() * 0.01
 
     for i in range(n_particles):
         x[0, i] = x_[i]
         F[0, i] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        actuator_id[i] = actuator_id[i]
-        particle_type[i] = particle_type[i]
+        actuator_id[i] = actuator_id_arr[i]
+        particle_type[i] = particle_type_arr[i]
 
 
 def main():
