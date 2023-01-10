@@ -149,7 +149,7 @@ def p2g(f: ti.i32):
                 for k in ti.static(range(3)):
                     offset = ti.Vector([i, j, k])
                     dpos = (ti.cast(ti.Vector([i, j, k]), real) - fx) * dx
-                    weight = w[i](0) * w[j](1) * w[k](2)
+                    weight = w[i][0] * w[j][1] * w[k][2]
                     grid_v_in[base + offset].atomic_add(
                         weight * (mass * v[f, p] + affine @ dpos))
                     grid_m_in[base + offset].atomic_add(weight * mass)
@@ -196,7 +196,7 @@ def grid_op():
                     v_out[1] = 0
                     v_out[2] = 0
                 else:
-                    lin = (v_out.transpose() @ normal)(0)
+                    lin = v_out.dot(normal)
                     if lin < 0:
                         vit = v_out - lin * normal
                         lit = vit.norm() + 1e-10
@@ -227,8 +227,8 @@ def g2p(f: ti.i32):
             for j in ti.static(range(3)):
                 for k in ti.static(range(3)):
                     dpos = ti.cast(ti.Vector([i, j, k]), real) - fx
-                    g_v = grid_v_out[base(0) + i, base(1) + j, base(2) + k]
-                    weight = w[i](0) * w[j](1) * w[k](2)
+                    g_v = grid_v_out[base[0] + i, base[1] + j, base[2] + k]
+                    weight = w[i][0] * w[j][1] * w[k][2]
                     new_v += weight * g_v
                     new_C += 4 * weight * g_v.outer_product(dpos) * inv_dx
 
