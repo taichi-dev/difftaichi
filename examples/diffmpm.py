@@ -215,7 +215,7 @@ def compute_x_avg():
         contrib = 0.0
         if particle_type[i] == 1:
             contrib = 1.0 / n_solid_particles
-        x_avg[None].atomic_add(contrib * x[steps - 1, i])
+        ti.atomic_add(x_avg[None], contrib * x[steps - 1, i])
 
 
 @ti.kernel
