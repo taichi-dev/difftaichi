@@ -150,9 +150,9 @@ def p2g(f: ti.i32):
                     offset = ti.Vector([i, j, k])
                     dpos = (ti.cast(ti.Vector([i, j, k]), real) - fx) * dx
                     weight = w[i][0] * w[j][1] * w[k][2]
-                    grid_v_in[base + offset].atomic_add(
+                    ti.atomic_add(grid_v_in[base + offset],
                         weight * (mass * v[f, p] + affine @ dpos))
-                    grid_m_in[base + offset].atomic_add(weight * mass)
+                    ti.atomic_add(grid_m_in[base + offset], weight * mass)
 
 
 bound = 3
@@ -254,7 +254,7 @@ def compute_x_avg():
         contrib = 0.0
         if particle_type[i] == 1:
             contrib = 1.0 / n_solid_particles
-        x_avg[None].atomic_add(contrib * x[steps - 1, i])
+        ti.atomic_add(x_avg[None], contrib * x[steps - 1, i])
 
 
 @ti.kernel

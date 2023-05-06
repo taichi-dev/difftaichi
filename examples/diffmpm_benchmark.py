@@ -162,7 +162,7 @@ def g2p(f: ti.i32):
 @ti.kernel
 def compute_x_avg():
     for i in range(n_particles):
-        x_avg[None].atomic_add((1 / n_particles) * x[steps - 1, i])
+        ti.atomic_add(x_avg[None], (1 / n_particles) * x[steps - 1, i])
 
 
 @ti.kernel
