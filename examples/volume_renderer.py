@@ -132,7 +132,7 @@ def create_target_images():
 
         fn = "{}/target_{:04d}.png".format("output_volume_renderer", view)
         print("Saving {}".format(fn))
-        imwrite(fn, 100 * img)
+        imwrite(fn, (255 * img).astype(np.uint8))
 
 
 @ti.func
