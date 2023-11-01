@@ -384,7 +384,7 @@ res = [visualize_resolution, visualize_resolution]
 
 
 @ti.kernel
-def copy_back_and_clear(img: ti.ext_arr()):
+def copy_back_and_clear(img: ti.types.ndarray()):
     for i in range(res[0]):
         for j in range(res[1]):
             coord = ((res[1] - 1 - j) * res[0] + i) * 3

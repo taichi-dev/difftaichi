@@ -200,7 +200,7 @@ def benchmark():
         grid_op()
         g2p(0)
     ti.sync()
-    ti.clear_kernel_profile_info()
+    ti.profiler.clear_kernel_profiler_info()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -209,14 +209,14 @@ def benchmark():
         g2p(0)
     ti.sync()
     print('forward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.print_kernel_profile_info()
+    ti.profiler.print_kernel_profiler_info()
 
     for i in range(1):
         p2g.grad(0)
         grid_op.grad()
         g2p.grad(0)
     ti.sync()
-    ti.clear_kernel_profile_info()
+    ti.profiler.clear_kernel_profiler_info()
     t = time.time()
     for i in range(iters):
         # clear_grid()
@@ -225,7 +225,7 @@ def benchmark():
         p2g.grad(0)
     ti.sync()
     print('backward ', (time.time() - t) / iters * 1000 * 3, 'ms')
-    ti.print_kernel_profile_info()
+    ti.profiler.print_kernel_profiler_info()
 
 
 @ti.kernel
@@ -290,9 +290,9 @@ def main():
             img_count += 1
             # cv2.imwrite('MPM{:04d}.png'.format(img_count), img * 255)
             cv2.waitKey(1)
-        ti.print_kernel_profile_info()
+        ti.profiler.print_kernel_profiler_info()
 
-    ti.print_kernel_profile_info()
+    ti.profiler.print_kernel_profiler_info()
     plt.title("Optimization of Initial Velocity")
     plt.ylabel("Loss")
     plt.xlabel("Gradient Descent Iterations")
